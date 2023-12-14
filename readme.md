@@ -1,7 +1,7 @@
 # löve-build
 An app for quickly packaging LÖVE games for distribution, based off the most recent comments in [this issue](https://github.com/love2d/love/issues/890).
 
-The goal is to make something eventually maintained by the LÖVE team that can let new developers build their game cross-platform from their own machine in a single step - with zero dependencies and no need for VMs.
+The goal is to make something eventually maintained by the LÖVE team that can let new developers build their games cross-platform from their own machine in a single step - with zero dependencies and no need for VMs.
 
 *This app will build your game for LÖVE (.love), Windows (.exe), MacOS (.app), and Linux (.zip)*
 
@@ -14,27 +14,26 @@ First you will need to setup a `build.lua` file in the root of your project:
 ```lua
 return {
   
-  -- basic options
+  -- basic options:
   name = 'SuperGame', -- name of the game for your executable
   developer = 'CoolDev', -- dev name used in metadata of the file
-  output = '', -- output location for build files in your project, defaults to $SAVE_DIRECTORY
+  output = 'dist', -- output location for build files in your project, defaults to $SAVE_DIRECTORY
   version = '1.1a', -- 'version' of your game, used to make a version folder in output
-  love = '11.5', -- version of LÖVE to use, to match github releases
+  love = '11.5', -- version of LÖVE to use, must match github releases
   ignore = {'dist', '.DS_Store'}, -- folders/files to ignore in your project
-  icon = 'resources/icon.png', -- 256x256px icon for game, will be converted for you
+  icon = 'resources/icon.png', -- 256x256px PNG icon for game, will be converted for you
   
-  -- extra options
-  identifier = 'com.love.supergame', -- [mac] team identifier, defaults to game.developer.name
-  use32bit = false, -- [windows] set true to build 32-bit as well as 64-bit
-  libs = {'resources/plugin.dll'} -- list of files to place in output directly
-  -- @NOTE items in libs will also be added to the ignore list
+  -- extra options:
+  use32bit = false, -- set true to build windows 32-bit as well as 64-bit
+  identifier = 'com.love.supergame', -- macos team identifier, defaults to game.developer.name
+  libs = {'resources/plugin.dll'} -- list of files to place in output directly rather than fuse
   
 }
 ```
 
 Then download the build application for your OS from the [releases](https://github.com/ellraiser/love-build/releases) page.
 
-To use the app directly, simply run it. You will see a screen prompting you to drag your `main.lua` file into the app - doing so will start the build process and export your game, opening the export location when finished. A `build.log` file will also be created to view any errors (see "Troubleshooting" for common issues).
+To use the app directly, simply run it. You will see a screen prompting you to drag your `main.lua` file into the app - doing so will start the build process and export your game, opening the export location when finished. A `build.log` file will also be created to view any errors (see [Troubleshooting](#troubleshooting) for common issues).
 
 You can view the `example-project` in this repository for an example setup.
 
