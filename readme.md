@@ -17,7 +17,7 @@ return {
   -- basic options:
   name = 'SuperGame', -- name of the game for your executable
   developer = 'CoolDev', -- dev name used in metadata of the file
-  output = 'dist', -- output location for build files in your project, defaults to $SAVE_DIRECTORY
+  output = 'dist', -- output location for your game, defaults to $SAVE_DIRECTORY
   version = '1.1a', -- 'version' of your game, used to make a version folder in output
   love = '11.5', -- version of LÖVE to use, must match github releases
   ignore = {'dist', '.DS_Store'}, -- folders/files to ignore in your project
@@ -26,7 +26,7 @@ return {
   -- extra options:
   use32bit = false, -- set true to build windows 32-bit as well as 64-bit
   identifier = 'com.love.supergame', -- macos team identifier, defaults to game.developer.name
-  libs = {'resources/plugin.dll'} -- list of files to place in output directly rather than fuse
+  libs = {'resources/plugin.dll'} -- files to place in output directly rather than fuse
   
 }
 ```
@@ -58,7 +58,7 @@ You can also pass a second option to specify the target platforms you want - by 
 
 
 ## Cross-Platform Building
-Regardless of the platform you run the builder from it will export your game to all 3 platforms - Windows, MacOS, and Linux.  
+Regardless of the platform you run the builder from it will export your game to all 3 platforms.  
 These will each be put in their own `.zip` file inside the `output/version` folder specified by your `build.lua`.
 
 | Build From  | Windows | MacOS | Linux |
