@@ -1,7 +1,7 @@
 # löve-build
-An app for quickly packaging LÖVE games for distribution, based off the most recent comments in [this issue](https://github.com/love2d/love/issues/890)
+An app for quickly packaging LÖVE games for distribution, based off the most recent comments in [this issue](https://github.com/love2d/love/issues/890).
 
-The goal is to make something eventually maintained by the LÖVE development team that can let new developers build their game cross-platform from their own machine in a single step with zero dependencies and no need for VMs.
+The goal is to make something eventually maintained by the LÖVE team that can let new developers build their game cross-platform from their own machine in a single step - with zero dependencies and no need for VMs.
 
 *This app will build your game for LÖVE (.love), Windows (.exe), MacOS (.app), and Linux (.zip)*
 
@@ -58,6 +58,24 @@ You can also pass a second option to specify the target platforms you want - by 
 ---
 
 
+## Cross-Platform Building
+Regardless of the platform you run the builder on it will export your game to all 3 platforms (Windows, MacOS, Linux).  
+These will be put in their own `.zip` file inside the `output/version` folder specified by your `build.lua`.
+
+| Build From  | Windows | MacOS | Linux |
+| ----------- | ------- | ----- | ----- |
+| Windows     |    ✓    |   ✓   |   ✓^  |
+| MacOS       |    ✓    |   ✓   |   ✓^  |
+| Linux       |    ✓    |   ✓   |   ✓^  |
+
+^ Linux builds are currently a 'basic' export, not an AppImage - chmod+run the `AppRun` file to run
+
+> Note: MacOS builds are _not_ signed so are not suitable for AppStore distribution
+
+
+---
+
+
 ## Troubleshooting
 These are the common errors you might see when building.  
 You can view the logs inside `output/version/build.log` after running the builder.
@@ -80,29 +98,11 @@ You can view the logs inside `output/version/build.log` after running the builde
 ---
 
 
-## Cross-Platform Building
-Regardless of the OS you run the builder on, it will export your game to all 3 platforms (Windows, MacOS, Linux).  
-These will be put in their own `.zip` file inside the `output/version` folder specified by your `build.lua`.
-
-| Build From  | Windows | MacOS | Linux |
-| ----------- | ------- | ----- | ----- |
-| Windows     |    ✓    |   ✓   |   ✓^  |
-| MacOS       |    ✓    |   ✓   |   ✓^  |
-| Linux       |    ✓    |   ✓   |   ✓^  |
-
-^ - Linux builds are currently a 'basic' export not an AppImage, chmod+run the `AppRun` file to run
-
-> Note: MacOS builds are _not_ signed so are not suitable for AppStore distribution
-
-
----
-
-
 ## Todo / Contributor Notes
 **.AppImages for Linux export**  
-Currently the `love-squashfs` lib handles decompressing squashfs binaries fine, however resquashing them has an issue at the moment. Currently the Linux export just uses the same AppImage directory format with a `AppRun` entrypoint and fused binary, which will work fine for most distros so no harm there.
+Currently the `love-squashfs` lib handles decompressing squashfs binaries fine, however resquashing them has an issue at the moment I'm working on. At the moment the Linux export just uses the same AppImage directory format with a `AppRun` entrypoint and fused binary, which will work fine for most distros so no harm there.
  
-Once the lib issues are fixed we'll be able to export as a proper `.AppImage`, but I think we should still keep the `-linux.zip` output as an option for people who want it.
+Once the lib issues are fixed we'll be able to export as a proper `.AppImage`, but I think we should still keep the `-linux.zip` output as an option for people who want it, similar to the additional 32bit option windows has.
 
 ---
 
