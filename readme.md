@@ -59,8 +59,8 @@ You can also pass a second option to specify the target platforms you want - by 
 
 
 ## Cross-Platform Building
-Regardless of the platform you run the builder on it will export your game to all 3 platforms (Windows, MacOS, Linux).  
-These will be put in their own `.zip` file inside the `output/version` folder specified by your `build.lua`.
+Regardless of the platform you run the builder from it will export your game to all 3 platforms - Windows, MacOS, and Linux.  
+These will each be put in their own `.zip` file inside the `output/version` folder specified by your `build.lua`.
 
 | Build From  | Windows | MacOS | Linux |
 | ----------- | ------- | ----- | ----- |
@@ -128,4 +128,4 @@ I think even then, distributing as a `.love` file that works with 11.X we would 
 
 
 **.General clean-up**  
-I'll be working on cleaning up all the main `libs`, this was originally just a learning project for me so you can see the difference between say `love-icon` vs `love-exedit`, so I'll be going back through all these libs and making them consistent.
+I'll be working on cleaning up all the main `libs`, this was originally just a learning project for me so you can see the difference between say `love-icon` vs `love-exedit`, so I'll be going back through all these libs and making them consistent - can see notes in `todo.md`.
