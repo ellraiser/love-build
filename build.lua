@@ -1,6 +1,6 @@
--- using lovebuild to build lovebuild, nice
+-- using love-build to build love-build, nice
 return {
-  name = 'build',
+  name = 'love-build',
   version = '0.1.0',
   love = '12.0',
   icon = 'resources/love-hammer.png',

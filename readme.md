@@ -74,25 +74,25 @@ You can view the logs inside `output/version/build.log` after running the builde
 | Source download failed                                          | Failed to download release from github
 | Source file must be supplied to build this version              | Specificed version doesn't have a release on github
 
-> Note: If you want to build with 12.0 you'll need to provide the source zips yourself in the `LOVE/build/cache` directory, you can download the builds from the [latest successful 12.0-dev action](https://github.com/love2d/love/actions/workflows/main.yml?query=branch%3A12.0-development)
+> Note: If you want to build with 12.0 you'll need to provide the source zips yourself in the `%appdata%/build/cache` directory, you can download the builds from the [latest successful 12.0-dev action](https://github.com/love2d/love/actions/workflows/main.yml?query=branch%3A12.0-development)
 
 
 ---
 
 
 ## Cross-Platform Building
-When building an attempt will be made to make an executable for all 3 platforms, listed below.  
-These will be put in corresponding zips inside the `output/version` folder created.
+Regardless of the OS you run the builder on, it will export your game to all 3 platforms (Windows, MacOS, Linux).  
+These will be put in their own `.zip` file inside the `output/version` folder specified by your `build.lua`.
 
 | Build From  | Windows | MacOS | Linux |
 | ----------- | ------- | ----- | ----- |
-| Windows     |    Y    |   Y   |   Y~  |
-| MacOS       |    Y    |   Y   |   Y~  |
-| Linux       |    Y    |   Y   |   Y~  |
+| Windows     |    ✓    |   ✓   |   ✓^  |
+| MacOS       |    ✓    |   ✓   |   ✓^  |
+| Linux       |    ✓    |   ✓   |   ✓^  |
 
-Y~ - Linux builds are currently a 'basic' export not an AppImage, chmod+run the `AppRun` file to run
+^ - Linux builds are currently a 'basic' export not an AppImage, chmod+run the `AppRun` file to run
 
-> Note: MacOS builds are not signed so are not suitable for AppStore distribution
+> Note: MacOS builds are _not_ signed so are not suitable for AppStore distribution
 
 
 ---
