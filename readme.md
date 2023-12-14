@@ -1,5 +1,6 @@
 # löve-build
-An app for quickly packaging LÖVE games for distribution, based off the most recent comments in [this issue](https://github.com/love2d/love/issues/890)  
+An app for quickly packaging LÖVE games for distribution, based off the most recent comments in [this issue](https://github.com/love2d/love/issues/890)
+
 The goal is to make something eventually maintained by the LÖVE development team that can let new developers build their game cross-platform from their own machine in a single step with zero dependencies and no need for VMs.
 
 You can use Lövebuild by running it directly or use it in command line!
@@ -27,7 +28,7 @@ return {
   -- extra options
   identifier = 'com.love.supergame', -- [mac] team identifier, defaults to game.developer.name
   use32bit = false, -- [windows] set true to build 32-bit as well as 64-bit
-  libs = {'resources/plugin.dll'} -- list of files to place in output zips directly instead of fusing
+  libs = {'resources/plugin.dll'} -- list of files to place in output directly
   -- @NOTE items in libs will also be added to the ignore list
   
 }
@@ -99,7 +100,7 @@ Y~ - Linux builds are currently a 'basic' export not an AppImage, chmod+run the 
 
 
 ## Contributor Notes
-**.AppImages for Linux export**
+**.AppImages for Linux export**  
 Currently the `love-squashfs` lib handles decompressing squashfs binaries fine, however resquashing them has an error at the moment.  
 This isn't the worst case, as the current Linux export just uses the same AppImage format with a `AppRun` entrypoint, which will work fine for most distros.
  
