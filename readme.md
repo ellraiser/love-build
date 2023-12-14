@@ -3,8 +3,6 @@ An app for quickly packaging LÖVE games for distribution, based off the most re
 
 The goal is to make something eventually maintained by the LÖVE development team that can let new developers build their game cross-platform from their own machine in a single step with zero dependencies and no need for VMs.
 
-You can use Lövebuild by running it directly or use it in command line!
-
 *This app will build your game for LÖVE (.love), Windows (.exe), MacOS (.app), and Linux (.zip)*
 
 
