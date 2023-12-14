@@ -94,29 +94,31 @@ Y~ - Linux builds are currently a 'basic' export not an AppImage, chmod+run the 
 
 > Note: MacOS builds are not signed so are not suitable for AppStore distribution
 
+
 ---
 
 
 ## Contributor Notes
 **.AppImages for Linux export**  
-Currently the `love-squashfs` lib handles decompressing squashfs binaries fine, however resquashing them has an error at the moment.  
-This isn't the worst case, as the current Linux export just uses the same AppImage format with a `AppRun` entrypoint, which will work fine for most distros.
+Currently the `love-squashfs` lib handles decompressing squashfs binaries fine, however resquashing them has an issue at the moment. The current Linux export just uses the same AppImage format with a `AppRun` entrypoint, which will work fine for most distros so no harm there.
  
-Once the lib issues are fixed we'll be able to export as a proper `.AppImage`, but probably still want to give an option to do this 'basic' export, bit more flexible that way?
+Once the lib issues are fixed we'll be able to export as a proper `.AppImage`, but I think we should still keep the `-linux.zip` output as an option for people who want it.
 
 ---
+
 
 **Windows.exe metadata**  
 The current `love-exedit` module is very basic (currently only lets you modify ICON resources), and not very efficient.
 
-I'd like to improve this, as well as making it support some sort of rsrc file with VERSION_INFO to modify the default metadata, which is the only thing currently missing from the windows builds.  
-If you want to have a look at this, there are some notes in the module for the relevant points.
+I'd like to improve this, as well as making it support some sort of `rsrc` option you can provide with VERSION_INFO to modify the default metadata, which is the only thing currently missing from the windows builds. If you want to have a look at this, there are some notes in the module for the relevant points.
+
 
 ---
 
+
 **Distributing lovebuild as .love file**  
-We *could* make the builder more portable and distribute as a `.love` - this would make it a smaller file to download BUT it'd mean we'd be using whatever version of LÖVE the developer has locally, if they're using 11.X (or older) a bunch of things will fail as `love-build` was built with 12.0 and uses some of the newer methods internally.
+We *could* make the builder more portable and distribute as a `.love` - this would make it a smaller file to download BUT it'd mean we'd be using whatever version of LÖVE the developer has locally, if they're using 11.X (or older) a bunch of things will fail as `love-build` itself was built with 12.0 and uses some of the newer methods internally.
 
 The main issues we would have are replacing `mountFullPath` (would need to be replaced with terminal commands), and the `https` module. We only use http.request for downloading the source initially, however as it's an SSL endpoint (github releases), we would need `lua-https` - we can't just use luasocket. However `lua-https` has not been built for MacOSX ARM64 yet so we wouldn't have complete support but this would be the best option if someone can build it for the project.
 
-I think even then, distributing as a `.love` file that works with 11.X we would still have issues with older builds and I think it's more consistent to offer a pre-built application and not have to worry about what a dev might have locally.
+I think even then, distributing as a `.love` file that works with 11.X we would still have issues with older builds and I think it's more consistent to offer a pre-built application and not have to worry about what a dev might have locally?
