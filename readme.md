@@ -121,4 +121,10 @@ We *could* make the builder more portable and distribute as a `.love` - this wou
 
 The main issues we would have are replacing `mountFullPath` (would need to be replaced with terminal commands), and the `https` module. We only use http.request for downloading the source initially, however as it's an SSL endpoint (github releases), we would need `lua-https` - we can't just use luasocket. However `lua-https` has not been built for MacOSX ARM64 yet so we wouldn't have complete support but this would be the best option if someone can build it for the project.
 
-I think even then, distributing as a `.love` file that works with 11.X we would still have issues with older builds and I think it's more consistent to offer a pre-built application and not have to worry about what a dev might have locally?
+I think even then, distributing as a `.love` file that works with 11.X we would still have issues with older builds and I think it's more consistent to offer a pre-built application and not have to worry about what a dev might have locally
+
+
+---
+
+
+See [todo.md](todo.md) for stuff planned in future

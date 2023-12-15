@@ -6,8 +6,10 @@ love.load = function(args)
   love.build.log('start')
 
   -- set some defaults for love
-  love.graphics.setDefaultFilter("nearest", "nearest")
-  love.build.canvas:setFilter('nearest', 'nearest')
+  if love.window and love.graphics then
+    love.graphics.setDefaultFilter("nearest", "nearest")
+    love.build.canvas:setFilter('nearest', 'nearest')
+  end
   -- love-zip, love-icon and love-squashfs are written for 11.X
   -- so turn this off or people might think it's an error
   love.setDeprecationOutput(false)

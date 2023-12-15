@@ -3,15 +3,24 @@ require('libs.love-icon')
 require('libs.love-squashfs')
 require('libs.love-exedit')
 
+local build_canvas = nil
+local build_logo = nil
+local build_font = nil
+if love.window and love.graphics then
+  build_canvas = love.graphics.newCanvas(320, 160)
+  build_logo = love.graphics.newImage('resources/love.png')
+  build_font = love.graphics.newImageFont(
+    'resources/font-char.png',
+    " AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz+#:-'!?.0123456789,/ %()çö<_", 1)
+end
+
 return {
 
   -- setup general love.build properties
   http = require('https'),
-  canvas = love.graphics.newCanvas(320, 160),
-  logo = love.graphics.newImage('resources/love.png'),
-  font = love.graphics.newImageFont(
-    'resources/font-char.png',
-    " AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz+#:-'!?.0123456789,/ %()çö<_", 1),
+  canvas = build_canvas,
+  logo = build_logo,
+  font = build_font,
   status = '',
   path = '',
   folder = '',
