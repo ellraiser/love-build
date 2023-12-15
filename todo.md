@@ -1,6 +1,6 @@
 # Before 1.0
 [misc]
-- default ignore paths for .git, .vs, .vscode .DS_Store
+- default ignore paths for .git, .vs, .vscode .DS_Store, $output
 - platform specific libs options
 - use getWorkingDirectory() if people running relatively for openURL
 - improve zip speed, bottleneck is crc32 checksum i think?
