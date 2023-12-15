@@ -3,6 +3,7 @@
 - default ignore paths for .git, .vs, .vscode .DS_Store
 - platform specific libs options
 - use getWorkingDirectory() if people running relatively for openURL
+- improve zip speed, bottleneck is crc32 checksum i think?
 
 [love-exedit]
 - add VERSION_INFO modifier for `love-exedit`
