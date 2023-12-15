@@ -25,11 +25,11 @@ return {
   ignore = {'dist', '.DS_Store'}, -- folders/files to ignore in your project
   icon = 'resources/icon.png', -- 256x256px PNG icon for game, will be converted for you
   
-  -- extra options:
+  -- optional settings:
   use32bit = false, -- set true to build windows 32-bit as well as 64-bit
   identifier = 'com.love.supergame', -- macos team identifier, defaults to game.developer.name
   libs = {'resources/plugin.dll'} -- files to place in output directly rather than fuse
-  platforms = {'windows'} -- optional, if you want to only build for specific platforms
+  platforms = {'windows'} -- set if you only want to build for a specific platform
   
 }
 ```
