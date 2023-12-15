@@ -14,7 +14,6 @@ return {
     " AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz+#:-'!?.0123456789,/ %()çö<_", 1),
   status = '',
   path = '',
-  slash = '/',
   folder = '',
   os = 'windows',
   opts = {},
@@ -42,12 +41,6 @@ return {
     local current_os = love.system.getOS()
     if current_os == 'Linux' then love.build.os = 'linux' end
     if current_os == 'OS X' then love.build.os = 'macos' end
-
-    -- when working with terminal we'll need an os specific path slash
-    -- we dont need this for love.filesystem calls
-    if love.build.os == 'windows' then
-      love.build.slash = '\\'
-    end
 
     -- make sure we have the expected local folders
     love.build.log('setting up save directory')
@@ -95,7 +88,7 @@ return {
     if opts == nil or type(opts) ~= 'table' then
       return love.build.err('specified build.lua does not return anything')
     end
-      
+  
     -- set options global using config
     love.build.log('setting options')
     love.build.opts.name = opts.name or 'SuperGame'
@@ -103,19 +96,28 @@ return {
     love.build.opts.version = opts.version or '1.0.0'
     love.build.opts.output = nil
     if opts.output ~= nil then
-      love.build.opts.output = love.build.path .. 
-        love.build.slash .. opts.output
+      love.build.opts.output = love.build.path .. '/' .. opts.output
     end
     love.build.opts.ignore = opts.ignore or {}
     love.build.opts.version = opts.version or '1.0.0'
     love.build.opts.love = opts.love or '11.4'
+
     -- set default indentifier for backup if not set
     local default_idendifier = 'com.' .. 
       string.lower(love.build.opts.developer) .. '.' ..
       string.lower(love.build.opts.name)
     love.build.opts.identifier = opts.identifier or default_idendifier
+
+    -- additional options
     love.build.opts.icon = opts.icon or nil
+    if love.build.opts.icon == nil then love.build.opts.icon = '' end
     love.build.opts.use32bit = opts.use32bit or false
+    -- if platforms specified use that instead for targets
+    if opts.platforms ~= nil and type(opts.platforms) == 'table' then
+      love.build.targets = table.concat(opts.platforms, ',')
+    end
+    love.build.log('target platforms: "' .. love.build.targets .. '"')
+
     -- lib entries are also ignored
     love.build.opts.libs = opts.libs or {}
     for l=1,#love.build.opts.libs do
@@ -125,7 +127,7 @@ return {
       end
       table.insert(love.build.opts.ignore, filename)
     end
-    if love.build.opts.icon == nil then love.build.opts.icon = '' end
+
     -- print options out for sense checking
     for key, value in pairs(love.build.opts) do
       love.build.log('  ' .. key .. ': ' .. tostring(value) )

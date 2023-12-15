@@ -5,6 +5,8 @@ The goal is to make something eventually maintained by the LÖVE team that can l
 
 *This app will build your game for LÖVE (.love), Windows (.exe), MacOS (.app), and Linux (.zip)*
 
+![alt text](resources/preview.png)
+
 
 ---
 
@@ -27,6 +29,7 @@ return {
   use32bit = false, -- set true to build windows 32-bit as well as 64-bit
   identifier = 'com.love.supergame', -- macos team identifier, defaults to game.developer.name
   libs = {'resources/plugin.dll'} -- files to place in output directly rather than fuse
+  platforms = {'windows'} -- optional, if you want to only build for specific platforms
   
 }
 ```
@@ -91,7 +94,7 @@ You can view the logs inside `output/version/build.log` after running the builde
 | Source download failed                                          | Failed to download release from github
 | Source file must be supplied to build this version              | Specificed version doesn't have a release on github
 
-> Note: If you want to build with 12.0 you'll need to provide the source zips yourself in the `%appdata%/build/cache` directory, you can download the builds from the [latest successful 12.0-dev action](https://github.com/love2d/love/actions/workflows/main.yml?query=branch%3A12.0-development)
+> Note: If you want to build with 12.0 you'll need to provide the source zips yourself in the `%appdata%/love-build/cache` directory, you can download the builds from the [latest successful 12.0-dev action](https://github.com/love2d/love/actions/workflows/main.yml?query=branch%3A12.0-development)
 
 
 ---
@@ -121,10 +124,3 @@ We *could* make the builder more portable and distribute as a `.love` - this wou
 The main issues we would have are replacing `mountFullPath` (would need to be replaced with terminal commands), and the `https` module. We only use http.request for downloading the source initially, however as it's an SSL endpoint (github releases), we would need `lua-https` - we can't just use luasocket. However `lua-https` has not been built for MacOSX ARM64 yet so we wouldn't have complete support but this would be the best option if someone can build it for the project.
 
 I think even then, distributing as a `.love` file that works with 11.X we would still have issues with older builds and I think it's more consistent to offer a pre-built application and not have to worry about what a dev might have locally?
-
-
----
-
-
-**.General clean-up**  
-I'll be working on cleaning up all the main `libs`, this was originally just a learning project for me so you can see the difference between say `love-icon` vs `love-exedit`, so I'll be going back through all these libs and making them consistent - can see notes in `todo.md`.

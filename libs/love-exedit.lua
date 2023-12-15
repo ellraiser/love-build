@@ -434,6 +434,10 @@ love.exedit.updateIcon = function(exe_file, image_file)
             if lvl1_type == 'ICON' then
               local newdata = ico_icon:_resize(ico_img, ico_sizes[l2])
               local padding = lvl3_entry.DataSize - newdata:getSize()
+              if padding < 0 then
+                newdata = new_data:sub(1, lvl3_entry.DataSize)
+                padding = 0
+              end
               local prefix = new_data:sub(1, rsrc_data_index+lvl3_entry.Position-2)
               local newimg = newdata:getString() .. string.rep(' ', padding)
               local suffix = new_data:sub(rsrc_data_index+lvl3_entry.Position-2+lvl3_entry.DataSize+1, #new_data)

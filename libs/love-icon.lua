@@ -1,21 +1,22 @@
 --[[
-  MIT License
-  https://github.com/ellraiser/love-icon
-]]
-
--- @lib  - love-icon
--- @desc - lua convertor for png files to create ico/icns files natively
---         built for use with LÖVE 11.X+
+  @lib  - love-icon
+  @desc - lua convertor for png files to create ico/icns files natively
+          built for use with LÖVE 11.X+
+  @url - https://github.com/ellraiser/love-icon
+  @license - MIT
+--]]
 
 
 local bit = require("bit")
 love.icon = {
 
 
-  -- @method - love.icon:newIcon()
-  -- @desc - creates a new icon instance for converting
-  -- @param {string} path - path to the target png file
-  -- @return {userdata} - returns the new icon obj to use
+  --[[
+    @method - love.icon:newIcon()
+    @desc - creates a new icon instance for converting
+    @param {string} path - path to the target png file
+    @return {userdata} - returns the new icon obj to use
+  --]]
   newIcon = function(self, path)
     local imgdata = love.image.newImageData(path)
     local iconcls = {
@@ -38,31 +39,37 @@ love.icon = {
   end,
 
 
-  -- @method - Icon:convertToICO()
-  -- @desc - convert loaded file to .ico
-  -- @param {string} output - output file path
-  -- @return {boolean,string} - returns true/false and err if any
+  --[[
+    @method - Icon:convertToICO()
+    @desc - convert loaded file to .ico
+    @param {string} output - output file path
+    @return {boolean,string} - returns true/false and err if any
+  --]]
   convertToICO = function(self, output)
     print('love.icon > creating ico at: "' .. output .. '"')
     return self:_convert(output, 'ico')
   end,
 
 
-  -- @method - Icon:convertToICNS()
-  -- @desc - convert loaded file to .icns
-  -- @param {string} output - output file path
-  -- @return {boolean,string} - returns true/false and err if any
+  --[[
+    @method - Icon:convertToICNS()
+    @desc - convert loaded file to .icns
+    @param {string} output - output file path
+    @return {boolean,string} - returns true/false and err if any
+  --]]
   convertToICNS = function(self, output)
     print('love.icon > creating icns at: "' .. output .. '"')
     return self:_convert(output, 'icns')
   end,
 
 
-  -- @method - Icon:_resize()
-  -- @desc - internal method to resize given png data to a new size
-  -- @param {imgdata} img - imgdata from love.graphics.newImage 
-  -- @param {format} size - format to use for converting
-  -- @return {string} returns png encoded data
+  --[[
+    @method - Icon:_resize()
+    @desc - internal method to resize given png data to a new size
+    @param {imgdata} img - imgdata from love.graphics.newImage 
+    @param {format} size - format to use for converting
+    @return {string} returns png encoded data
+  --]]
   _resize = function(self, img, size)
     local png = love.graphics.newCanvas(size, size)
     png:renderTo(function()
@@ -72,11 +79,13 @@ love.icon = {
   end,
 
 
-  -- @method - Icon:_convert()
-  -- @desc - internal method to do actual data conversion
-  -- @param {string} output - output file path
-  -- @param {format} string - format to use for converting
-  -- @return {boolean,string} - returns true/false and err if any
+  --[[
+    @method - Icon:_convert()
+    @desc - internal method to do actual data conversion
+    @param {string} output - output file path
+    @param {format} string - format to use for converting
+    @return {boolean,string} - returns true/false and err if any
+  --]]
   _convert = function(self, output, format)
 
     -- on windows we have to build the ico file using the standard format
@@ -109,22 +118,28 @@ love.icon = {
       local img = love.graphics.newImage(self.img)
       local png256 = self:_resize(img, 256)
       local totalsize = png256:getSize()
+      local file_length = love.data.pack('string', '>I4', totalsize + 16)
+      local img_length = love.data.pack('string', '>I4', png256:getSize())
+      -- write icns format
       local header = 'icns' -- Magic literal
-      header = header .. love.data.pack('string', '>I4', totalsize + 16) -- Length of file
-      header = header .. 'ic08' -- 256
-      header = header .. love.data.pack('string', '>I4', png256:getSize())
-      header = header .. png256:getString()
+      header = header .. file_length
+      header = header .. 'ic08' -- 256x256
+      header = header .. img_length
+      header = header .. png256:getString() -- actual data
       return love.filesystem.write(output, header)
     end
+
   end,
 
 
-  -- @method - Icon:_intToBytes()
-  -- @desc - internal method to convert a given int to a set number of bytes
-  -- @param {number} int - integer to convert
-  -- @param {number} size - number of bytes
-  -- @return {string} - returns converted bytes
-  -- @TODO change to use love.data.pack?
+  --[[
+    @method - Icon:_intToBytes()
+    @desc - internal method to convert a given int to a set number of bytes
+    @param {number} int - integer to convert
+    @param {number} size - number of bytes
+    @return {string} - returns converted bytes
+  --]]
+  -- @TODO use love.data.pack for ints within range?
   _intToBytes = function(self, int, size)
     local t = {}
     for i=1,size do
@@ -133,5 +148,6 @@ love.icon = {
     end
     return table.concat(t)
   end
+
 
 }

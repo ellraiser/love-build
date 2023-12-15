@@ -1,29 +1,26 @@
 --[[
-  MIT License
-  https://github.com/ellraiser/love-zip
-]]
+  @lib  - love-zip
+  @desc - lua zip compressing/decompressing that works cross platform 
+          and can handle symlinks, built for use with LÖVE 11.X+
+  @url - https://github.com/ellraiser/love-zip
+  @license - MIT
+--]]
 
--- @lib  - love-zip
--- @desc - lua zip compressing/decompressing that works cross platform 
---         and can handle symlinks, built for use with LÖVE 11.X+
-
--- @note - modified to allow for 'manual' symlink mode, meaning we can temporarily
---         store symlinks in the zip, and add them back to the zip when recompressing
---         this removes the requirement for 'Run As Administrator' on Windows when
---         building for MacOS/Linux
 
 local bit = require("bit")
 love.zip = {
 
 
-  -- @method - Zip:new()
-  -- @desc - creates a new zip instance for compressing/decompressing
-  -- @param {bool} logs - whether to enable verbose logging
-  -- @param {bool} manual_symlink - whether you want to handle symlinks manually
-  --                                this will not write symlinks to disk but add 
-  --                                them to Zip.symlinks instead for you to use 
-  --                                later when compressing back up
-  -- @return {userdata} - returns the new zip obj to use
+  --[[
+    @method - Zip:new()
+    @desc - creates a new zip instance for compressing/decompressing
+    @param {bool} logs - whether to enable verbose logging
+    @param {bool} manual_symlink - whether you want to handle symlinks manually
+                                   this will not write symlinks to disk but add 
+                                   them to Zip.symlinks instead for you to use 
+                                   later when compressing back up
+    @return {userdata} - returns the new zip obj to use
+  --]]
   newZip = function(self, logs, manual_symlink)
     local zipcls = {
       files = {},
@@ -36,7 +33,8 @@ love.zip = {
     }
     -- by handling symlinks manually you can remove the requirement on Windows
     -- to 'Run As System Administrator' if you're just going to rezip the
-    -- contents back up slightly modified
+    -- contents back up slightly modified - this is used in love-build if you
+    -- want to see some example usage
     if manual_symlink == true then
       print('love.zip > WARN: manual symlinks set, symlinks will not be created')
     end
@@ -46,11 +44,13 @@ love.zip = {
   end,
 
 
-  -- @method - Zip:decompress()
-  -- @desc - decompresses a given zip file to a specific output folder
-  -- @param {string} path - relative path to zip folder from LÖVE save directory
-  -- @param {string} output - output path relative from LÖVE save directory
-  -- @return {boolean,string} - returns true,nil if success, else returns false,error
+  --[[
+    @method - Zip:decompress()
+    @desc - decompresses a given zip file to a specific output folder
+    @param {string} path - relative path to zip folder from LÖVE save directory
+    @param {string} output - output path relative from LÖVE save directory
+    @return {boolean,string} - returns true,nil if success, else returns false,error
+  --]]
   decompress = function(self, path, output, remapping)
 
     -- make sure we can read the zip first
@@ -73,7 +73,7 @@ love.zip = {
     -- these are marked by PK at the start
     -- https://en.wikipedia.org/wiki/ZIP_(file_format)
     local centraldirh = string.find(content, 'PK') or 1
-    local centraldir = string.sub(content, centraldirh, #content - 1)
+    local centraldir =  string.sub(content, centraldirh, #content - 1)
     local entries = {}
     local entry = ''
     -- add data bit by bit until we find a central dir marker 
@@ -100,19 +100,18 @@ love.zip = {
       -- get central dir entry values
       -- https://en.wikipedia.org/wiki/ZIP_(file_format)
       local ebytes = entries[e]
-      local compressionformat = love.data.unpack("<i2", string.sub(ebytes, 11, 12))
-      local compressedsize = love.data.unpack('<i4', string.sub(ebytes, 21, 24))
-      local offset = string.sub(ebytes, 43, 46)
-      local filenamesize = love.data.unpack("<i2", string.sub(ebytes, 29, 30))
-      local extrasize = love.data.unpack("<i2", string.sub(ebytes, 31, 32))
-      local extraattr = string.sub(ebytes, 39, 42)
-      local offsetpos = love.data.unpack('<i4', offset)
-      local actualname = string.sub(content, offsetpos + 31, offsetpos + 30 + filenamesize)
+      local compressionformat =   self:_readUInt(ebytes, 11, 2)
+      local compressedsize =      self:_readUInt(ebytes, 21, 4)
+      local filenamesize =        self:_readUInt(ebytes, 29, 2)
+      local extrasize =           self:_readUInt(ebytes, 31, 2)
+      local extraattr =           string.sub(ebytes, 39, 42)
+      local offsetpos =           self:_readUInt(ebytes, 43, 4)
+      local actualname =          string.sub(content, offsetpos + 31, offsetpos + 30 + filenamesize)
 
       -- for each file we have the offset, the length of the file (compressed + 30 + filename)
       -- so we just need to pull that as one string to get our actual data
       local fileoffset = offsetpos + 31 + #actualname + extrasize
-      local filedata = string.sub(content, fileoffset, fileoffset + compressedsize - 1)
+      local filedata =   string.sub(content, fileoffset, fileoffset + compressedsize - 1)
       local compressed = filedata
       -- if we failed to compress we dont recognise the format 
       if filedata ~= '' and compressionformat == 8 then
@@ -125,6 +124,9 @@ love.zip = {
       end
 
       -- remap entries if needed
+      -- this mainly exists for love-build needing an easy way to 'rename' the macos .app
+      -- because its a directory on windows/linux, but by remapping when we decompress
+      -- we can change love.app to ExampleGame.app when creating the initial file
       if remapping ~= nil then
         for key, value in pairs(remapping) do
           actualname = actualname:gsub(key, value)
@@ -154,12 +156,9 @@ love.zip = {
       -- symlinks store their link as uncompressed data
       -- and their attribute has a special magic value
       -- https://gist.github.com/kgn/610907/dfe4fe04b8499c1cd2ba36b257468c570853ad02
-      -- @TODO check just x flagged files to see if there's some other values
-      -- as i think this is a+x value 
       elseif love.data.unpack('<I4', fdata.extra_attr) == 2716663808 then
-        
-        -- handle symlinks AFTER making all files or might get issues on windows
-        
+        -- handle symlinks AFTER making all files or we can run into issues on 
+        -- windows due to the order of certain files
       else
  
         -- zips made on windows won't always have the 'empty' directory entries like unix
@@ -182,19 +181,21 @@ love.zip = {
       end
     end
 
-    -- process symlinks after if any
     -- sort in order so that we dont try and create symlinks of symlinks if nested
     table.sort(files, function(fa, fb)
       if #fa.data > #fb.data then return false end
       if #fa.data < #fb.data then return true end
       return false
     end)
+
+    -- process symlinks after if any
     for f=1,#files do
       local fdata = files[f]
       local fname = output .. fdata.file_name
-      
+
+      -- check symlink magic attr 
       if love.data.unpack('<I4', fdata.extra_attr) == 2716663808 then
-        
+
         -- get relative full path for os.execute
         local fullpath = love.filesystem.getSaveDirectory() .. '/'
         local lastslash = string.find(fname, "/[^/]*$")
@@ -202,6 +203,10 @@ love.zip = {
         local target_path = fullpath .. lname .. fdata.data
         local symlink_path = fullpath .. fname
 
+        -- if using manual symlinks just store the symlink + target
+        -- rather than actually create it - this is used by love-build
+        -- to prevent needing 'Run As System Administrator' to use 'mklink' on
+        -- windows just to create the symlink to zip it back up again
         if self.manual_symlink == true then
           table.insert(self.symlinks, {fdata.file_name, fdata.data})
           self:_log('storing sym: "' .. fname .. '"')
@@ -235,13 +240,15 @@ love.zip = {
   end,
 
 
-  -- @method - Zip:compress()
-  -- @desc - compress a given folder to a specific output zip
-  -- @param {string} path - relative path to target folder from LÖVE save directory
-  -- @param {string} output - output zip path relative from LÖVE save directory
-  -- @param {table} ignore - optional list of file/folders to ignore
-  -- @param {table} symlinks - if using manual_symlinks, the map of symlinks to create
-  -- @return {boolean,string} - returns true,nil if success, else returns false,error
+  --[[
+    @method - Zip:compress()
+    @desc - compress a given folder to a specific output zip
+    @param {string} path - relative path to target folder from LÖVE save directory
+    @param {string} output - output zip path relative from LÖVE save directory
+    @param {table} ignore - optional list of file/folders to ignore
+    @param {table} symlinks - if using manual_symlinks, the map of symlinks to create
+    @return {boolean,string} - returns true,nil if success, else returns false,error
+  --]]
   compress = function(self, path, output, ignore, symlinks)
     print('love.zip > compressing directory: "' .. path .. '"')
     if ignore == nil then ignore = {} end
@@ -249,6 +256,9 @@ love.zip = {
     self.path = output
     self:addFolder(path, ignore)
     self:_log('writing files to: "' .. output .. '"')
+    -- if given a list of manual symlinks add after all the files have been 
+    -- created, we dont sense check here because if you're using manual symlinks
+    -- you should know what ya doin (hopefully)
     if symlinks ~= nil and self.manual_symlink == true then
       print('love.zip > adding manual symlinks', #symlinks)
       for s=1,#symlinks do
@@ -260,11 +270,13 @@ love.zip = {
   end,
 
 
-  -- @method - Zip:addFile()
-  -- @desc - adds a given file to the zip instance, this just adds the data in
-  --         memory, Zip:finish() must be called to commit to the file
-  -- @param {string} filename - path to file relative to LÖVE save directory
-  -- @return {boolean,string} - returns true,nil if success, else returns false,error
+  --[[
+    @method - Zip:addFile()
+    @desc - adds a given file to the zip instance, this just adds the data in
+            memory, Zip:finish() must be called to commit to the file
+    @param {string} filename - path to file relative to LÖVE save directory
+    @return {boolean,string} - returns true,nil if success, else returns false,error
+  --]]
   addFile = function(self, filename, path)
     local content, err = love.filesystem.read(filename)
     if content == nil then return nil, err end
@@ -273,14 +285,16 @@ love.zip = {
   end,
 
 
-  -- @method - Zip:addFolder()
-  -- @desc - adds a given folder and all the items in it to the zip instance,
-  --         this just adds the data, Zip:finish() must be called to commit to file
-  -- @param {string} dir - path to folder relative to LÖVE save directory
-  -- @param {string} ignore - list of files/folders to ignore when adding
-  -- @param {string} _folder - used internally when recursively adding items
-  -- @param {string} _opath - used internally for symlinks to keep original path
-  -- @return {boolean,string} - returns true,nil if success, else returns false,error
+  --[[
+    @method - Zip:addFolder()
+    @desc - adds a given folder and all the items in it to the zip instance,
+            this just adds the data, Zip:finish() must be called to commit to file
+    @param {string} dir - path to folder relative to LÖVE save directory
+    @param {string} ignore - list of files/folders to ignore when adding
+    @param {string} _folder - used internally when recursively adding items
+    @param {string} _opath - used internally for symlinks to keep original path
+    @return {boolean,string} - returns true,nil if success, else returns false,error
+  --]]
   addFolder = function(self, dir, ignore, _folder, _opath)
     if ignore == nil then ignore = {} end
     if _folder == nil then _folder = '' end
@@ -293,9 +307,7 @@ love.zip = {
       local item = files[f]
       local ignored = false
       for i=1,#ignore do
-        if ignore[i] == item then
-          ignored = true
-        end
+        if ignore[i] == item then ignored = true end
       end
       if ignored == false then
         local info = love.filesystem.getInfo(dir .. '/' .. files[f])
@@ -310,7 +322,7 @@ love.zip = {
             if files[f]:find('%.') == nil then
               execv = 2179792896
             end
-            -- work out timestamp
+            -- pass timestamp if we have one to convert later
             self:_log('adding itm: "' .. _folder .. files[f] .. '"')
             self:_add(_folder .. files[f], content, execv, info.modtime)
 
@@ -332,6 +344,7 @@ love.zip = {
             local relative_path = path:gsub(love.filesystem.getSaveDirectory():gsub('\\', '/'), '')
             relative_path = relative_path:gsub('\\', '/')
             local regex_path = '/' .. _opath .. '/'
+            -- need to handle \, - and . in the paths before gsub:ing
             regex_path = regex_path:gsub('\\', '/')
             regex_path = regex_path:gsub('%-', '%%-')
             regex_path = regex_path:gsub('%.', '%%.')
@@ -355,13 +368,17 @@ love.zip = {
   end,
 
 
-  -- @method - Zip:finish()
-  -- @desc - commits all added files and folders to the file
-  -- @param {string} path - used when calling manually to set the output zip file 
-  --                        path to use, relative to the LÖVE save directory
-  -- @return {boolean,string} - returns true,nil if success, else returns false,error
+  --[[
+    @method - Zip:finish()
+    @desc - commits all added files and folders to the file
+    @param {string} path - used when calling manually to set the output zip file 
+                           path to use, relative to the LÖVE save directory
+    @return {boolean,string} - returns true,nil if success, else returns false,error
+  --]]
   finish = function(self, _path)
 
+    -- if we use decompress/compress we already have a path but if using 
+    -- addFile/addFolder you specify the path in :finish()
     if self.path == '' then self.path = _path end
 
     -- add file headers first
@@ -424,13 +441,15 @@ love.zip = {
   end,
 
 
-  -- @method - Zip:_add()
-  -- @desc - internal method to add a file's contents to the zip instance
-  -- @param {string} filename - name of the file being added
-  -- @param {string} content - content of the file to add
-  -- @param {number} extraattr - extra attribute to set for file entry, this is 
-  --                             used to set symlinks + executable files
-  -- @return {boolean,string} - returns true,nil if success, else returns false,error
+  --[[
+    @method - Zip:_add()
+    @desc - internal method to add a file's contents to the zip instance
+    @param {string} filename - name of the file being added
+    @param {string} content - content of the file to add
+    @param {number} extraattr - extra attribute to set for file entry, this is 
+                                used to set symlinks + executable files
+    @return {boolean,string} - returns true,nil if success, else returns false,error
+  --]]
   _add = function(self, filename, content, extraattr, modtime)
 
     local fileCRC32 = self:_crc32(content)
@@ -498,27 +517,28 @@ love.zip = {
   end,
 
 
-  -- @method - Zip:_add()
-  -- @desc - internal method to print output when logs are enabled
-  -- @param {string} msg - message to print
-  -- @return {nil}
+  --[[
+    @method - Zip:_log()
+    @desc - internal method to print additional output when logs are enabled
+    @param {string} msg - message to print
+    @return {nil}
+  --]]
   _log = function(self, msg)
     if self.logs == true then print('love.zip > ' .. msg) end
   end,
 
 
-    --[[
-    https://users.cs.jmu.edu/buchhofp/forensics/formats/pkzip.html
-    https://learn.microsoft.com/en-gb/windows/win32/api/winbase/nf-winbase-dosdatetimetofiletime
-      File modification time 	stored in standard MS-DOS format:
-        Bits 00-04: seconds divided by 2 (5)
-        Bits 05-10: minute (6)
-        Bits 11-15: hour (5)
-      File modification date 	stored in standard MS-DOS format:
-        Bits 00-04: day (5)
-        Bits 05-08: month (4)
-        Bits 09-15: years from 1980 (7)
-    ]]--
+  --[[
+    @method - Zip:_msdosWrite()
+    @desc - turns a day/month/year or sec/min/hour into a MS DOS format
+            https://users.cs.jmu.edu/buchhofp/forensics/formats/pkzip.html
+            https://learn.microsoft.com/en-gb/windows/win32/api/winbase/nf-winbase-dosdatetimetofiletime
+    @param {number} a - day or seconds
+    @param {number} b - month or minutes
+    @param {number} c - year or hours
+    @param {string} type - type, either date or time
+    @return {number} - returns the dosdate number to write
+  --]]
   _msdosWrite = function(self, a, b, c, type)
     --> day, month, year
     if type == 'date' then
@@ -538,12 +558,28 @@ love.zip = {
   end,
 
 
-  -- @method - Zip:_intToBytes()
-  -- @desc - internal method to convert a given int to a set number of bytes
-  -- @param {number} int - integer to convert
-  -- @param {number} size - number of bytes
-  -- @return {string} - returns converted bytes
-  -- @TODO change to use love.data.pack?
+  --[[
+    @method - Zip:_readUInt()
+    @desc - internal method to read given uint size from a position
+    @param {string} data - data to read from
+    @param {string} index - position to read at
+    @param {number} size - number of bytes
+    @return {string} - returns converted bytes
+  --]]
+  _readUInt = function(self, data, index, size)
+    return love.data.unpack('<i' .. tostring(size), data:sub(index, index+size-1))
+  end,
+
+
+  --[[
+    @method - Zip:_intToBytes()
+    @desc - internal method to convert a given int to a set number of bytes 
+            when the int exceeds expected by love.data.pack
+    @param {number} int - integer to convert
+    @param {number} size - number of bytes
+    @return {string} - returns converted bytes
+  --]]
+  -- @TODO use love.data.pack for ints within range?
   _intToBytes = function(self, int, size)
     local t = {}
     for i=1,size do
@@ -554,12 +590,14 @@ love.zip = {
   end,
 
 
-  -- @method - Zip:_resolveSymlink()
-  -- @desc - internal method to get the full path of a symlink using terminal
-  --         currently LÖVE (which is using physfs) doesnt return the actual
-  --         resolved symlink path 
-  -- @param {string} path - full path of symlink to resolve
-  -- @return {string} - returns resolved path
+  --[[
+    @method - Zip:_resolveSymlink()
+    @desc - internal method to get the full path of a symlink using terminal
+            currently LÖVE (which is using physfs) doesnt return the actual
+            resolved symlink path 
+    @param {string} path - full path of symlink to resolve
+    @return {string} - returns resolved path
+  --]]
   _resolveSymlink = function(self, path)
     local cmd = 'readlink "' .. path .. '"'
     local dir = path:sub(1, path:find("/[^/]*$") - 1)
@@ -568,11 +606,13 @@ love.zip = {
     if love.system.getOS() == 'Windows' then
       cmd = 'dir "' .. string.gsub(dir, '/', '\\') .. '"'
     end
+    -- use io.popen to get command result
     local handle = io.popen(cmd)
     if handle == nil then return '' end
     local result = handle:read("*a")
     handle:close()
     if love.system.getOS() == 'Windows' then
+      -- need to make sure all paths are consistent, remove any errant \ slashes
       path = string.gsub(path, '\\', '/')
       dir = string.gsub(dir, '\\', '/')
       result = string.gsub(result, '\\', '/')
@@ -587,15 +627,20 @@ love.zip = {
   end,
 
 
-  -- @method - Zip:_crc32()
-  -- @desc - calculates the crc32 hash for a given file's data
-  -- @param {string} data - data to hash
-  -- @return {string} - returns the hash
+  --[[
+    @method - Zip:_crc32()
+    @desc - calculates the crc32 hash for a given file's data
+    @param {string} data - data to hash
+    @return {string} - returns the hash
+  --]]
+
   -- @NOTE ported from C example here:
   -- https://en.wikipedia.org/wiki/Computation_of_cyclic_redundancy_checks#CRC-32_algorithm
   -- bit slow but guess can't help that given what it's doing?
+
   _crc32 = function(self, data)
-    -- cache modules http://bitop.luajit.org/api.html
+    -- cache modules for long ops recommended here
+    -- http://bitop.luajit.org/api.html
     local band, bxor, rshift = bit.band, bit.bxor, bit.rshift
     local crc32 = 0xFFFFFFFF
     local data_len = #data
@@ -610,13 +655,15 @@ love.zip = {
 
 
   --[[
+
     COPYRIGHT (C) 1986 Gary S. Brown.  You may use this program, or
     code or tables extracted from it, as desired without restriction.
     https://opensource.apple.com/source/xnu/xnu-1456.1.26/bsd/libkern/crc32.c
-  ]]--
-  -- @property - Zip:_crctable
-  -- @desc - used to calculate the zip files crc32 attribute for each file
-  --         see method below
+
+    @property - Zip:_crctable
+    @desc - used to calculate the zip files crc32 attribute for each file
+            see method above, thanks Gary!
+  --]]
   _crctable = {
     0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
     0xe963a535, 0x9e6495a3,	0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
