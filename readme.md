@@ -3,7 +3,7 @@ An app for quickly packaging LÖVE games for distribution, based off the most re
 
 The goal is to make something eventually maintained by the LÖVE team that can let new developers build their games cross-platform from their own machine in a single step - with zero dependencies and no need for VMs.
 
-*This app will build your game for LÖVE (.love), Windows (.exe), MacOS (.app), and Linux (.zip)*
+*This app will build + export your game for LÖVE (.love), Windows (.exe), MacOS (.app), and Linux (.zip)!*
 
 ![alt text](resources/preview.png)
 
@@ -16,7 +16,7 @@ First you will need to setup a `build.lua` file in the root of your project:
 ```lua
 return {
   
-  -- basic options:
+  -- basic settings:
   name = 'SuperGame', -- name of the game for your executable
   developer = 'CoolDev', -- dev name used in metadata of the file
   output = 'dist', -- output location for your game, defaults to $SAVE_DIRECTORY
@@ -38,7 +38,7 @@ Then download the build application for your OS from the [releases](https://gith
 
 To use the app directly, simply run it. You will see a screen prompting you to drag your `main.lua` file into the app - doing so will start the build process and export your game, opening the export location when finished. A `build.log` file will also be created to view any errors (see [Troubleshooting](#troubleshooting) for common issues).
 
-You can view the `example-project` in this repository for an example setup.
+You can view the `example-project` in this repository for an example setup/config.
 
 > Note: First time builds will be slower due to downloading and caching LÖVE source files - after that it'll be much faster!
 
@@ -100,9 +100,9 @@ You can view the logs inside `output/version/build.log` after running the builde
 ---
 
 
-## Todo / Contributor Notes
+## Todo
 **.AppImages for Linux export**  
-Currently the `love-squashfs` lib handles decompressing squashfs binaries fine, however resquashing them has an issue at the moment I'm working on. At the moment the Linux export just uses the same AppImage directory format with a `AppRun` entrypoint and fused binary, which will work fine for most distros so no harm there.
+Currently the `love-squashfs` lib handles decompressing squashfs binaries fine, however resquashing them has an issue I'm working on. At the moment the Linux export just uses the same AppImage directory format with a `AppRun` entrypoint and fused binary, which will work fine for most distros so no harm there.
  
 Once the lib issues are fixed we'll be able to export as a proper `.AppImage`, but I think we should still keep the `-linux.zip` output as an option for people who want it, similar to the additional 32bit option windows has.
 
@@ -110,9 +110,7 @@ Once the lib issues are fixed we'll be able to export as a proper `.AppImage`, b
 
 
 **Windows.exe metadata**  
-The current `love-exedit` module is very basic (currently only lets you modify ICON resources), and not very efficient.
-
-I'd like to improve this, as well as making it support some sort of `rsrc` option you can provide with VERSION_INFO to modify the default metadata, which is the only thing currently missing from the windows builds. If you want to have a look at this, there are some notes in the module for the relevant points.
+The current `love-exedit` module is very basic and only lets you modify ICON resources at the moment. I've made some work on parsing the VERSION_INFO to change the name/description, but it still needs finishing off and writing the changes before all the metadata stuff is finished.
 
 
 ---
