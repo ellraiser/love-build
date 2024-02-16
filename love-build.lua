@@ -108,6 +108,12 @@ return {
       love.build.opts.output = love.build.path .. '/' .. opts.output
     end
     love.build.opts.ignore = opts.ignore or {}
+    table.insert(love.build.opts.ignore, '.gitattributes')
+    table.insert(love.build.opts.ignore, '.gitignore')
+    table.insert(love.build.opts.ignore, '.git')
+    table.insert(love.build.opts.ignore, '.DS_Store')
+    table.insert(love.build.opts.ignore, '.vs')
+    table.insert(love.build.opts.ignore, '.vscode')
     love.build.opts.version = opts.version or '1.0.0'
     love.build.opts.love = opts.love or '11.4'
 

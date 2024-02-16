@@ -6,7 +6,6 @@ return {
   icon = 'resources/love-hammer.png',
   identifier = 'com.love.build',
   ignore = {
-    'dist', 'example-project', '.DS_Store',
-    '.git', '.gitattributes', 'gitignore'
+    'dist', 'example-project'
   }
 }

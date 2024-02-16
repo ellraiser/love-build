@@ -1,8 +1,5 @@
 # Before 1.0
 [misc]
-- default ignore paths for .git, .vs, .vscode .DS_Store, $output
-- platform specific libs options
-- use getWorkingDirectory() if people running relatively for openURL
 - improve zip speed, bottleneck is crc32 checksum i think?
 
 [love-exedit]
@@ -15,6 +12,7 @@
 # Future Stuff
 [misc]
 - wildcards * for ignore/lib paths
+- platform specific libs options
 - option to NOT zip up output and make folders instead?
   this would require 'Run As System Administrator' for running on windows for macos/linux
   as windows needs `mklink` for making the symlinks (which we avoid by rezipping)
