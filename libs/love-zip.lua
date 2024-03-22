@@ -4,7 +4,7 @@
           and can handle symlinks, built for use with LÖVE 11.X+
   @url - https://github.com/ellraiser/love-zip
   @license - MIT
---]]
+  ]]
 
 
 local bit = require("bit")
@@ -20,7 +20,7 @@ love.zip = {
                                    them to Zip.symlinks instead for you to use 
                                    later when compressing back up
     @return {userdata} - returns the new zip obj to use
-  --]]
+    ]]
   newZip = function(self, logs, manual_symlink)
     local zipcls = {
       files = {},
@@ -50,7 +50,7 @@ love.zip = {
     @param {string} path - relative path to zip folder from LÖVE save directory
     @param {string} output - output path relative from LÖVE save directory
     @return {boolean,string} - returns true,nil if success, else returns false,error
-  --]]
+    ]]
   decompress = function(self, path, output, remapping)
 
     -- make sure we can read the zip first
@@ -248,7 +248,7 @@ love.zip = {
     @param {table} ignore - optional list of file/folders to ignore
     @param {table} symlinks - if using manual_symlinks, the map of symlinks to create
     @return {boolean,string} - returns true,nil if success, else returns false,error
-  --]]
+    ]]
   compress = function(self, path, output, ignore, symlinks)
     print('love.zip > compressing directory: "' .. path .. '"')
     if ignore == nil then ignore = {} end
@@ -276,7 +276,7 @@ love.zip = {
             memory, Zip:finish() must be called to commit to the file
     @param {string} filename - path to file relative to LÖVE save directory
     @return {boolean,string} - returns true,nil if success, else returns false,error
-  --]]
+    ]]
   addFile = function(self, filename, path)
     local content, err = love.filesystem.read(filename)
     if content == nil then return nil, err end
@@ -294,7 +294,7 @@ love.zip = {
     @param {string} _folder - used internally when recursively adding items
     @param {string} _opath - used internally for symlinks to keep original path
     @return {boolean,string} - returns true,nil if success, else returns false,error
-  --]]
+    ]]
   addFolder = function(self, dir, ignore, _folder, _opath)
     if ignore == nil then ignore = {} end
     if _folder == nil then _folder = '' end
@@ -374,7 +374,7 @@ love.zip = {
     @param {string} path - used when calling manually to set the output zip file 
                            path to use, relative to the LÖVE save directory
     @return {boolean,string} - returns true,nil if success, else returns false,error
-  --]]
+    ]]
   finish = function(self, _path)
 
     -- if we use decompress/compress we already have a path but if using 
@@ -449,7 +449,7 @@ love.zip = {
     @param {number} extraattr - extra attribute to set for file entry, this is 
                                 used to set symlinks + executable files
     @return {boolean,string} - returns true,nil if success, else returns false,error
-  --]]
+    ]]
   _add = function(self, filename, content, extraattr, modtime)
 
     local fileCRC32 = self:_crc32(content)
@@ -522,7 +522,7 @@ love.zip = {
     @desc - internal method to print additional output when logs are enabled
     @param {string} msg - message to print
     @return {nil}
-  --]]
+    ]]
   _log = function(self, msg)
     if self.logs == true then print('love.zip > ' .. msg) end
   end,
@@ -538,7 +538,7 @@ love.zip = {
     @param {number} c - year or hours
     @param {string} type - type, either date or time
     @return {number} - returns the dosdate number to write
-  --]]
+    ]]
   _msdosWrite = function(self, a, b, c, type)
     --> day, month, year
     if type == 'date' then
@@ -565,7 +565,7 @@ love.zip = {
     @param {string} index - position to read at
     @param {number} size - number of bytes
     @return {string} - returns converted bytes
-  --]]
+    ]]
   _readUInt = function(self, data, index, size)
     return love.data.unpack('<i' .. tostring(size), data:sub(index, index+size-1))
   end,
@@ -578,7 +578,7 @@ love.zip = {
     @param {number} int - integer to convert
     @param {number} size - number of bytes
     @return {string} - returns converted bytes
-  --]]
+    ]]
   -- @TODO use love.data.pack for ints within range?
   _intToBytes = function(self, int, size)
     local t = {}
@@ -597,7 +597,7 @@ love.zip = {
             resolved symlink path 
     @param {string} path - full path of symlink to resolve
     @return {string} - returns resolved path
-  --]]
+    ]]
   _resolveSymlink = function(self, path)
     local cmd = 'readlink "' .. path .. '"'
     local dir = path:sub(1, path:find("/[^/]*$") - 1)
@@ -632,7 +632,7 @@ love.zip = {
     @desc - calculates the crc32 hash for a given file's data
     @param {string} data - data to hash
     @return {string} - returns the hash
-  --]]
+    ]]
 
   -- @NOTE ported from C example here:
   -- https://en.wikipedia.org/wiki/Computation_of_cyclic_redundancy_checks#CRC-32_algorithm
@@ -663,7 +663,7 @@ love.zip = {
     @property - Zip:_crctable
     @desc - used to calculate the zip files crc32 attribute for each file
             see method above, thanks Gary!
-  --]]
+    ]]
   _crctable = {
     0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
     0xe963a535, 0x9e6495a3,	0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
