@@ -4,7 +4,7 @@
           and can handle symlinks, built for use with LÖVE 11.X+
   @url - https://github.com/ellraiser/love-squashfs
   @license - MIT
---]]
+  ]]
 
 -- format taken from the following pages:
 -- https://dr-emann.github.io/squashfs/squashfs.html
@@ -26,7 +26,7 @@ love.squashfs = {
                                    rather than actually created, used by love-build
                                    to work around mklink needing sysadmin on windows
     @return {userdata} - returns the new icon obj to use
-  --]]
+    ]]
   newSquashFS = function(self, manual_symlink)
     local squashcls = {
       manual_symlink = manual_symlink or false,
@@ -44,7 +44,7 @@ love.squashfs = {
     @param {string} target - target folder to compress
     @param {string} output - output path/file
     @return {bool,string} - returns true/false for success and error if any
-  --]]
+    ]]
 
   -- @NOTE currently broken, I think the padding after id_table is causing issues
   -- for unsquash readers
@@ -377,7 +377,7 @@ love.squashfs = {
     @param {string} target - path to squashfs binary
     @param {string} output - output folder to unsquash to
     @return {bool,string} - returns true/false for success and err if any
-  --]]
+    ]]
   decompress = function(self, target, output)
 
     -- read the target binary file to start with
@@ -829,7 +829,7 @@ love.squashfs = {
     @param {bool} count - used recursively to handle root
     @param {number} count - used recursively to handle parent
     @return {table} - returns a list of inode paths ready to squash 
-  --]]
+    ]]
   _readDirectory = function(self, target, count, paths, root, parent)
     if count == nil then count = 0 end
     if paths == nil then paths = {} end
@@ -872,7 +872,7 @@ love.squashfs = {
     @param {string} output - output path to make sure its appended at start
     @param {string} path - node path as a list
     @return {string} - returns the node paths a full/path/string
-  --]]
+    ]]
   _resolveNodePath = function(self, mapping, names, inode_number, limit, output, path)
     local parent = mapping[inode_number]
     local name = names[parent] or ''
@@ -891,7 +891,7 @@ love.squashfs = {
     @prop - SquashFS:_inodeLength()
     @desc - used to set a baseline for each of the inode types,
             and to easily flag when an inode type isn't implemented yet in the console
-  --]]
+    ]]
   _inodeLength = {
     16 + 16, -- Basic Directory
     16 + 16, -- Basic File (+N where N == #filename)
@@ -905,7 +905,7 @@ love.squashfs = {
             but for chmod we need the oct value
     @param {int} dec - dec value to turn into oct
     @return {int} - returns the oct value
-  --]]
+    ]]
   _decToOct = function(self, dec)
     local valstr = "0123456789ABCDEF"
     local result = ""
@@ -925,7 +925,7 @@ love.squashfs = {
             resolved symlink path 
     @param {string} path - full path of symlink to resolve
     @return {string} - returns resolved path
-  --]]
+    ]]
   _resolveSymlink = function(self, path)
     local cmd = 'readlink "' .. path .. '"'
     local dir = path:sub(1, path:find("/[^/]*$") - 1)
@@ -962,7 +962,7 @@ love.squashfs = {
     @param {string} path - path to AppImage to strip
     @param {string} output - output file to put the binary squashfs data
     @return {nil}
-  --]]
+    ]]
   _stripAppImage = function(self, path, output)
     local appimagedata, err = love.filesystem.read(path)
     if appimagedata == nil then
@@ -1000,7 +1000,7 @@ love.squashfs = {
     @param {string} str - string to read mblock from
     @param {string} start - start position of mblock
     @return {string} - returns the mblock data
-  --]]
+    ]]
   _readMBlock = function(self, str, start)
     local header = self:_readUInt16(str, start)
     local size = bit.band(header, 0x7FFF)

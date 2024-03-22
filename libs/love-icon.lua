@@ -4,7 +4,7 @@
           built for use with LÖVE 11.X+
   @url - https://github.com/ellraiser/love-icon
   @license - MIT
---]]
+  ]]
 
 
 local bit = require("bit")
@@ -16,7 +16,7 @@ love.icon = {
     @desc - creates a new icon instance for converting
     @param {string} path - path to the target png file
     @return {userdata} - returns the new icon obj to use
-  --]]
+    ]]
   newIcon = function(self, path)
     local imgdata = love.image.newImageData(path)
     local iconcls = {
@@ -44,7 +44,7 @@ love.icon = {
     @desc - convert loaded file to .ico
     @param {string} output - output file path
     @return {boolean,string} - returns true/false and err if any
-  --]]
+    ]]
   convertToICO = function(self, output)
     print('love.icon > creating ico at: "' .. output .. '"')
     return self:_convert(output, 'ico')
@@ -56,7 +56,7 @@ love.icon = {
     @desc - convert loaded file to .icns
     @param {string} output - output file path
     @return {boolean,string} - returns true/false and err if any
-  --]]
+    ]]
   convertToICNS = function(self, output)
     print('love.icon > creating icns at: "' .. output .. '"')
     return self:_convert(output, 'icns')
@@ -69,7 +69,7 @@ love.icon = {
     @param {imgdata} img - imgdata from love.graphics.newImage 
     @param {format} size - format to use for converting
     @return {string} returns png encoded data
-  --]]
+    ]]
   _resize = function(self, img, size)
     local png = love.graphics.newCanvas(size, size)
     png:renderTo(function()
@@ -85,7 +85,7 @@ love.icon = {
     @param {string} output - output file path
     @param {format} string - format to use for converting
     @return {boolean,string} - returns true/false and err if any
-  --]]
+    ]]
   _convert = function(self, output, format)
 
     -- on windows we have to build the ico file using the standard format
@@ -138,7 +138,7 @@ love.icon = {
     @param {number} int - integer to convert
     @param {number} size - number of bytes
     @return {string} - returns converted bytes
-  --]]
+    ]]
   -- @TODO use love.data.pack for ints within range?
   _intToBytes = function(self, int, size)
     local t = {}

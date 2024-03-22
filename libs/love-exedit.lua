@@ -11,7 +11,7 @@
     require('love-exedit')
     local modified_exe_data = love.exedit.updateIcon('path_to_exe', 'path_to_image')
 
-]]
+  ]]
 
 require('bit')
 require('libs.love-icon')
