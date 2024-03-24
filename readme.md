@@ -1,5 +1,5 @@
 # löve-build
-An app for quickly packaging LÖVE games for distribution, based off the most recent comments in [this issue](https://github.com/love2d/love/issues/890).
+An app (built in LÖVE!) for quickly packaging LÖVE games for distribution, based off the most recent comments in [this issue](https://github.com/love2d/love/issues/890).
 
 The goal is to make something eventually maintained by the LÖVE team that can let new developers build their games cross-platform from their own machine in a single step - with zero dependencies and no need for VMs.
 
@@ -94,7 +94,7 @@ You can view the logs inside `output/version/build.log` after running the builde
 | Source download failed                                          | Failed to download release from github
 | Source file must be supplied to build this version              | Specificed version doesn't have a release on github
 
-> Note: If you want to build with 12.0 you'll need to provide the source zips yourself in the `%appdata%/love-build/cache` directory, you can download the builds from the [latest successful 12.0-dev action](https://github.com/love2d/love/actions/workflows/main.yml?query=branch%3A12.0-development)
+> Note: If you want to build with 12.0 you'll need to provide the source zips yourself in the `%appdata%/love-build/cache` directory, you can download the builds from the [latest successful workflow action](https://github.com/love2d/love/actions), as the main branch on Github is on version 12.
 
 
 ---
@@ -102,29 +102,11 @@ You can view the logs inside `output/version/build.log` after running the builde
 
 ## Todo
 **.AppImages for Linux export**  
-Currently the `love-squashfs` lib handles decompressing squashfs binaries fine, however resquashing them has an issue I'm working on. At the moment the Linux export just uses the same AppImage directory format with a `AppRun` entrypoint and fused binary, which will work fine for most distros so no harm there.
+Currently the `love-squashfs` lib handles decompressing squashfs binaries fine, however resquashing them has an issue I'm working on. At the moment the Linux export just uses the same AppImage directory format with a `AppRun` entrypoint and fused binary, which will work fine for most distros so no harm there (and also works a bit better for Steam distribution)
  
-Once the lib issues are fixed we'll be able to export as a proper `.AppImage`, but I think we should still keep the `-linux.zip` output as an option for people who want it, similar to the additional 32bit option windows has.
-
----
-
+Once the lib issues are fixed we'll be able to export as a proper `.AppImage` if needed, but I think we should still keep the `-linux.zip` output as an option for people who want it, similar to the additional 32bit option windows has.
 
 **Windows.exe metadata**  
-The current `love-exedit` module is very basic and only lets you modify ICON resources at the moment. I've made some work on parsing the VERSION_INFO to change the name/description, but it still needs finishing off and writing the changes before all the metadata stuff is finished.
-
-
----
-
-
-**Distributing lovebuild as .love file**  
-We *could* make the builder more portable and distribute as a `.love` - this would make it a smaller file to download BUT it'd mean we'd be using whatever version of LÖVE the developer has locally, if they're using 11.X (or older) a bunch of things will fail as `love-build` itself was built with 12.0 and uses some of the newer methods internally.
-
-The main issues we would have are replacing `mountFullPath` (would need to be replaced with terminal commands), and the `https` module. We only use http.request for downloading the source initially, however as it's an SSL endpoint (github releases), we would need `lua-https` - we can't just use luasocket. However `lua-https` has not been built for MacOSX ARM64 yet so we wouldn't have complete support but this would be the best option if someone can build it for the project.
-
-I think even then, distributing as a `.love` file that works with 11.X we would still have issues with older builds and I think it's more consistent to offer a pre-built application and not have to worry about what a dev might have locally
-
-
----
-
+The current `love-exedit` module is very basic and only lets you modify ICON resources at the moment. I've made some work on parsing the VERSION_INFO to change the name/description, but it still needs finishing off and writing the name/version changes before all the metadata stuff is finished.
 
 See [todo.md](todo.md) for stuff planned in future
