@@ -21,7 +21,8 @@ jobs:
     - name: Run Builder
       run: |
         ls
-        love-macos/love.app/Contents/MacOS/love "main.lua"
+        love-macos/love.app/Contents/MacOS/love --version
+        love-macos/love.app/Contents/MacOS/love ./main.lua
     - name: Check Run
       run: |
         unzip example-project/dist/1.0.0/ExampleGame-macos.zip
