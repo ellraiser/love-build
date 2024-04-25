@@ -1,6 +1,6 @@
 function love.conf(t)
   t.console = true
-  t.window.title = "Love Builder"
+  t.window.title = "Love Builder v0.4"
   t.window.width = 640
   t.window.height = 320
   t.window.resizable = true

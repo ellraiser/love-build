@@ -5,7 +5,12 @@ return {
   version = '1.0.0',
   love = '11.5',
   ignore = {'dist', '.DS_Store'},
-  libs = {'resources/plugin.dll'},
+  libs = {
+    macos = {'resources/plugin.dylib'},
+    windows = {'resources/plugin.dll'},
+    linux = {'resources/plugin.so'},
+    all = {'resources/license.txt'}
+  },
   icon = 'resources/icon.png',
-  platforms = {'windows'}
+  platforms = {'windows', 'macos', 'linux'}
 }

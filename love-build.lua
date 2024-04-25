@@ -108,6 +108,7 @@ return {
       love.build.opts.output = love.build.path .. '/' .. opts.output
     end
     love.build.opts.ignore = opts.ignore or {}
+    table.insert(love.build.opts.ignore, '.github')
     table.insert(love.build.opts.ignore, '.gitattributes')
     table.insert(love.build.opts.ignore, '.gitignore')
     table.insert(love.build.opts.ignore, '.git')
@@ -115,7 +116,7 @@ return {
     table.insert(love.build.opts.ignore, '.vs')
     table.insert(love.build.opts.ignore, '.vscode')
     love.build.opts.version = opts.version or '1.0.0'
-    love.build.opts.love = opts.love or '11.4'
+    love.build.opts.love = opts.love or '11.5'
 
     -- set default indentifier for backup if not set
     local default_idendifier = 'com.' .. 
@@ -135,12 +136,24 @@ return {
 
     -- lib entries are also ignored
     love.build.opts.libs = opts.libs or {}
-    for l=1,#love.build.opts.libs do
-      local filename = love.build.opts.libs[l]
-      if filename:find("/[^/]*$") ~= nil then
-        filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+    for key, value in pairs(love.build.opts.libs) do
+      if key == 'windows' or key == 'macos' or key == 'linux' or key == 'all' then
+        for l=1,#value do
+          local filename = value[l]
+          if filename:find("/[^/]*$") ~= nil then
+            filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+          end
+          table.insert(love.build.opts.ignore, filename)
+          print('lib option', filename)
+        end
+      else
+        local filename = value
+        if filename:find("/[^/]*$") ~= nil then
+          filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+        end
+        table.insert(love.build.opts.ignore, filename)
+        print('lib option', filename)
       end
-      table.insert(love.build.opts.ignore, filename)
     end
 
     -- print options out for sense checking
@@ -278,13 +291,24 @@ return {
     )
 
     -- copy any libs specified into the folder
-    for l=1,#opts.libs do
-      local filename = opts.libs[l]
-      if filename:find("/[^/]*$") ~= nil then
-        filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+    for key, value in pairs(opts.libs) do
+      if key == 'windows' or key == 'all' then
+        for l=1,#value do
+          local filename = value[l]
+          if filename:find("/[^/]*$") ~= nil then
+            filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+          end
+          love.build.log('adding lib: "' .. value[l] .. '" > "/' .. filename .. '"')
+          love.build.copyFile('project/' .. value[l], 'temp/' .. srcdir .. '/' .. filename)
+        end
+      elseif key ~= 'macos' and key ~= 'linux' then
+        local filename = value
+        if filename:find("/[^/]*$") ~= nil then
+          filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+        end
+        love.build.log('adding lib: "' .. value .. '" > "/' .. filename .. '"')
+        love.build.copyFile('project/' .. value, 'temp/' .. srcdir .. '/' .. filename)
       end
-      love.build.log('adding lib: "' .. opts.libs[l] .. '" > "/' .. filename .. '"')
-      love.build.copyFile('project/' .. opts.libs[l], 'temp/' .. srcdir .. '/' .. filename)
     end
 
     -- zip file output, ignoring some files
@@ -403,13 +427,24 @@ return {
     end
 
     -- copy any libs specified into the app/Contents/Resources folder
-    for l=1,#opts.libs do
-      local filename = opts.libs[l]
-      if filename:find("/[^/]*$") ~= nil then
-        filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+    for key, value in pairs(opts.libs) do
+      if key == 'macos' or key == 'all' then
+        for l=1,#value do
+          local filename = value[l]
+          if filename:find("/[^/]*$") ~= nil then
+            filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+          end
+          love.build.log('adding lib: "' .. value[l] .. '" > "Contents/Resources/' .. filename .. '"')
+          love.build.copyFile('project/' .. value[l], appcontents .. '/Resources/' .. filename)
+        end
+      elseif key ~= 'windows' and key ~= 'linux' then
+        local filename = value
+        if filename:find("/[^/]*$") ~= nil then
+          filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+        end
+        love.build.log('adding lib: "' .. value .. '" > "Contents/Resources/' .. filename .. '"')
+        love.build.copyFile('project/' .. value, appcontents .. '/Resources/' .. filename)
       end
-      love.build.log('adding lib: "' .. opts.libs[l] .. '" > "Contents/Resources/' .. filename .. '"')
-      love.build.copyFile('project/' .. opts.libs[l], appcontents .. '/Resources/' .. filename)
     end
 
     -- zip file output
@@ -532,13 +567,24 @@ return {
     apprun:close()
 
     -- copy any libs specified into the squashfs-root/lib folder
-    for l=1,#opts.libs do
-      local filename = opts.libs[l]
-      if filename:find("/[^/]*$") ~= nil then
-        filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+    for key, value in pairs(opts.libs) do
+      if key == 'linux' or key == 'all' then
+        for l=1,#value do
+          local filename = value[l]
+          if filename:find("/[^/]*$") ~= nil then
+            filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+          end
+          love.build.log('adding lib: "' .. value[l] .. '" > "lib/' .. filename .. '"')
+          love.build.copyFile('project/' .. value[l], 'temp/' .. srcdir .. '/squashfs-root/lib/' .. filename)
+        end
+      elseif key ~= 'macos' and key ~= 'windows' then
+        local filename = value
+        if filename:find("/[^/]*$") ~= nil then
+          filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+        end
+        love.build.log('adding lib: "' .. value .. '" > "lib/' .. filename .. '"')
+        love.build.copyFile('project/' .. value, 'temp/' .. srcdir .. '/squashfs-root/lib/' .. filename)
       end
-      love.build.log('adding lib: "' .. opts.libs[l] .. '" > "lib/' .. filename .. '"')
-      love.build.copyFile('project/' .. opts.libs[l], 'temp/' .. srcdir .. '/squashfs-root/lib/' .. filename)
     end
 
     -- remove squashfs-root/love.svg

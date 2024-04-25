@@ -643,6 +643,9 @@ love.squashfs = {
               -- get block data
               local fblock_offset = (fblock-1)*4
               local fblock_size = self:_readUInt32(inode_data, 33 + offset + fblock_offset)
+              -- sometimes the fblock_size might be read as greater than possible
+              -- make sure to cap the block size otherwise things get messy
+              if fblock_size > block_size then fblock_size = block_size end
               local fblock_cdata = data:sub(fblock_start+1, fblock_start+fblock_size)
               -- blocks do not have to be compressed, you could read from the size header
               -- but im lazy so just attempt to decompress and if we can we will
@@ -660,10 +663,9 @@ love.squashfs = {
           -- sense check file data retrieved here
           local final_data = file_data .. fragment_data
           if file_size ~= #final_data then
-            print('love.squashfs > WARN: file data doesnt match size expected', n, file_size, #final_data, file_size - #final_data)
-            -- some files seem to be compressed more efficiently than love.decompress deflates to
-            -- in these cases the written bytes (final_data) is higher than the file_size expected 
-            -- so far with love source appimages this has been fine to leave as a warning
+            -- this shouldnt happen, if it did we've either lost data or added junk data
+            print('love.squashfs > ERROR: file data doesnt match size expected', n, file_size, #final_data, file_size - #final_data)
+            return nil
           end
           -- for the next inode header need to offset by the block size bytes
           -- as this will vary based on the file
@@ -736,6 +738,7 @@ love.squashfs = {
       -- for normal files just write the data we decompressed
       if inode.ntype == 'fil' then
         love.filesystem.write(inode.path .. '/' .. inode.name, inode.data)
+        -- print('> file', inode.name, #inode.data)
         local fullpath = love.filesystem.getSaveDirectory() .. '/' .. inode.path .. '/' .. inode.name
         if love.system.getOS() ~= 'Windows' then
           os.execute('chmod ' .. tostring(perms) .. ' "' .. fullpath .. '"')
