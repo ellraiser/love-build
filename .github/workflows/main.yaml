@@ -13,18 +13,13 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    - name: Download Builder
-      run: curl -L https://github.com/ellraiser/love-build/releases/download/v0.3/love-build-0.3-macos.zip > love-build-0.3.zip
-    - name: Extract Builder
+    - name: Download Love
       run: |
-        unzip love-build-0.3.zip
+        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1348650151/zip"
+        7z x love12.zip -o*
+        7z x love12/love-macos.zip -o*
     - name: Run Builder
-      shell: bash
-      run: |
-        ls
-        chmod 755 love-build.app
-        chmod 755 love-build.app/Contents/MacOS/love
-        love-build.app/Contents/MacOS/love example-project/main.lua
+      run: love-macos/love.app/Contents/MacOS/love example-project/main.lua
     - name: Check Run
       shell: bash
       run: |
