@@ -13,7 +13,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      path: builder
+      with:
+        path: builder
     - name: Download Love
       run: |
         curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1348650151/zip"
