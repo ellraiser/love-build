@@ -53,6 +53,9 @@ jobs:
       run: powershell.exe ./love-12.0-win64/love-12.0-win64/lovec.exe ./main.lua ./example-project/main.lua
     - name: Check Build
       run: |
-        unzip example-project/dist/1.0.0/ExampleGame-windows.zip
+        ls
+        ls example-project
+        ls example-project/dist
+        unzip ./example-project/dist/1.0.0/ExampleGame-windows.zip
         powershell.exe ./example-project/dist/1.0.0/ExampleGame.exe
     
