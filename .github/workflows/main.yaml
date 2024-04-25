@@ -19,10 +19,12 @@ jobs:
         7z x love12.zip -o*
         7z x love12/love-macos.zip -o*
     - name: Run Builder
+      env:
+        LOVE_GRAPHICS_DEBUG: 1
       run: |
         ls
         love-macos/love.app/Contents/MacOS/love --version
-        love-macos/love.app/Contents/MacOS/love main.lua example-project/main.lua
+        love-macos/love.app/Contents/MacOS/love main.lua example-project/main.lua --renderers opengl
     - name: Check Run
       run: |
         unzip example-project/dist/1.0.0/ExampleGame-macos.zip
