@@ -15,9 +15,9 @@ jobs:
     - name: Extract Builder
       run: |
         ls
-        unzip love-build-0.3.zip build
+        unzip love-build-0.3.zip 
     - name: Run Builder
-      run: build/love-build.app/Contents/MacOS/love example-project/main.lua
+      run: love-build-0.3/love-build.app/Contents/MacOS/love example-project/main.lua
     - name: Check Run
       run: |
         unzip example-project/dist/1.0.0/ExampleGame-macos.zip
