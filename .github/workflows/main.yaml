@@ -21,9 +21,7 @@ jobs:
     - name: Run Builder
       run: |
         ls
-        chmod a+x love-macos/love.app
-        chmod a+x love-macos/love.app/Contents/MacOS/love
-        love-macos/love.app/Contents/MacOS/love main.lua
+        open love-macos/love.app --args main.lua
         exit 0
     - name: Check Run
       run: |
