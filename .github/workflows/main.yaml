@@ -19,9 +19,12 @@ jobs:
       run: |
         ls
         chmod a+x love-build.app
+        chmod a+x love-build.app/Contents/MacOS/love
         love-build.app/Contents/MacOS/love example-project/main.lua
     - name: Check Run
       run: |
         unzip example-project/dist/1.0.0/ExampleGame-macos.zip
+        chmod a+x ExampleGame.app
+        chmod a+x ExampleGame.app/Contents/MacOS/love
         ExampleGame.app/Contents/MacOS/love
         exit 0
