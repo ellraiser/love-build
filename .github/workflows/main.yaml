@@ -14,20 +14,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
     - name: Download Love
-      shell: bash
       run: |
         curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1348650151/zip"
         7z x love12.zip -o*
         7z x love12/love-macos.zip -o*
     - name: Run Builder
-      shell: bash
       run: |
-        ls -l
-        ls love-macos/
-        love-macos/love.app/Contents/MacOS/love example-project/main.lua
+        love-macos/love.app/Contents/MacOS/love main.lua
         exit 0
     - name: Check Run
-      shell: bash
       run: |
         unzip example-project/dist/1.0.0/ExampleGame-macos.zip
         sudo chmod 755 ExampleGame.app
