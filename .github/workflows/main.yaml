@@ -18,7 +18,6 @@ jobs:
     - name: Run Builder
       run: |
         ls
-        chmod -R +x love-build.app
         open love-build.app --args example-project/main.lua
     - name: Check Run
       run: |
