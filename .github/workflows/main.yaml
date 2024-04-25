@@ -25,9 +25,8 @@ jobs:
     - name: Build Builder
       run: |
         mkdir builder/dist
-        ls
         ls builder
-        love-macos/love.app/Contents/MacOS/love main.lua ./builder/main.lua
+        love-macos/love.app/Contents/MacOS/love main.lua builder/main.lua
     - name: Upload Windows
       uses: actions/upload-artifact@v3
       with:
