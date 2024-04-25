@@ -14,12 +14,16 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Download Love
+      shell: bash
       run: |
         curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1348650151/zip"
         7z x love12.zip -o*
         7z x love12/love-macos.zip -o*
     - name: Run Builder
-      run: love-macos/love.app/Contents/MacOS/love example-project/main.lua
+      shell: bash
+      run: |
+        ls -l
+        love-macos/love.app/Contents/MacOS/love
     - name: Check Run
       shell: bash
       run: |
