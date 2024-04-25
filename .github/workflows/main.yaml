@@ -22,7 +22,7 @@ jobs:
       shell: bash
       run: |
         ls
-        chmod 755 love-build.app
+        chmod -R 755 love-build.app
         love-build.app/Contents/MacOS/love example-project/main.lua
     - name: Check Run
       shell: bash
