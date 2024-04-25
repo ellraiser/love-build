@@ -7,5 +7,5 @@ return {
   ignore = {'dist', '.DS_Store'},
   libs = {'resources/plugin.dll'},
   icon = 'resources/icon.png',
-  platforms = {'windows', 'linux', 'macos'}
+  platforms = {'windows'}
 }
