@@ -26,9 +26,6 @@ jobs:
       run: |
         ls example-project/dist/1.0.0
         love-macos/love.app/Contents/MacOS/love example-project/dist/1.0.0/ExampleGame.love
-    # - name: Upload Builder
-    #   run: |
-    #     echo "todo"
 
   windows:
     runs-on: windows-2022
@@ -58,7 +55,53 @@ jobs:
       run: |
         ls example-project/dist/1.0.0
         powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe example-project/dist/1.0.0/ExampleGame.love
-    # - name: Upload Builder
-    #   run: |
-    #     echo "todo"
-    
+
+  linux-ubuntu:
+    runs-on: ubuntu-22.04
+    env:
+      DISPLAY: :99
+    steps:
+    - name: Update APT
+      run: sudo apt-get update
+    - name: Install Dependencies
+      run: |
+        sudo apt-get install --assume-yes build-essential git make cmake autoconf automake \
+                                          libtool pkg-config libasound2-dev libpulse-dev libaudio-dev \
+                                          libjack-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev \
+                                          libxfixes-dev libxi-dev libxinerama-dev libxxf86vm-dev libxss-dev \
+                                          libgl1-mesa-dev libdbus-1-dev libudev-dev libgles2-mesa-dev \
+                                          libegl1-mesa-dev libibus-1.0-dev fcitx-libs-dev libsamplerate0-dev \
+                                          libsndio-dev libwayland-dev libxkbcommon-dev libdrm-dev libgbm-dev \
+                                          libfuse2 wmctrl openbox
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+    - name: Download Love
+      run: |
+        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1348653725/zip"
+        7z x love12.zip -o*
+        mv love12/love-*.AppImage love12/love12.AppImage
+        ls love12
+        chmod +x love12/love12.AppImage
+    - name: Start xvfb and openbox
+      run: |
+        echo "Starting XVFB on $DISPLAY"
+        Xvfb $DISPLAY -screen 0, 360x240x24 &
+        echo "XVFBPID=$!" >> $GITHUB_ENV
+        # wait for xvfb to startup (3s is the same amount xvfb-run waits by default)
+        sleep 3
+        openbox &
+        echo "OPENBOXPID=$!" >> $GITHUB_ENV
+    - name: Run Builder
+      run: |
+        love12/love12.AppImage main.lua --version
+        love12/love12.AppImage main.lua example-project/main.lua
+    - name: Check Build
+      run: |
+        ls example-project/dist/1.0.0
+        love12/love12.AppImage example-project/dist/1.0.0/ExampleGame.love
+    - name: Stop xvfb and openbox
+      # should always stop xvfb and openbox even if other steps failed
+      if: always()
+      run: |
+        kill $XVFBPID
+        kill $OPENBOXPID
