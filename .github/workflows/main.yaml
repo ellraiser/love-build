@@ -22,10 +22,9 @@ jobs:
       run: |
         ls
         love-macos/love.app/Contents/MacOS/love --version
-        love-macos/love.app/Contents/MacOS/love ./main.lua ./example-project/main.lua
+        love-macos/love.app/Contents/MacOS/love main.lua example-project/main.lua
     - name: Check Run
       run: |
         unzip example-project/dist/1.0.0/ExampleGame-macos.zip
-        sudo chmod 755 ExampleGame.app
-        sudo ExampleGame.app/Contents/MacOS/love
+        ExampleGame.app/Contents/MacOS/love
         exit 0
