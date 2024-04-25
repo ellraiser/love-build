@@ -57,7 +57,6 @@ jobs:
         powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe main.lua example-project/main.lua
     - name: Check Build
       run: |
-        ls output
-        ls temp
+        ls 
         ls example-project
     
