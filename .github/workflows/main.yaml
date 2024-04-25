@@ -20,6 +20,9 @@ jobs:
         7z x love12/love-macos.zip -o*
     - name: Run Builder
       run: |
+        ls
+        chmod a+x love-macos/love.app
+        chmod a+x love-macos/love.app/Contents/MacOS/love
         love-macos/love.app/Contents/MacOS/love main.lua
         exit 0
     - name: Check Run
