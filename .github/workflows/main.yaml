@@ -12,7 +12,7 @@ jobs:
       pull-requests: write
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Download Love
       shell: bash
       run: |
@@ -24,7 +24,8 @@ jobs:
       run: |
         ls -l
         ls love-macos/
-        love-macos/love.app/Contents/MacOS/love
+        love-macos/love.app/Contents/MacOS/love example-project/main.lua
+        exit 0
     - name: Check Run
       shell: bash
       run: |
