@@ -19,12 +19,13 @@ jobs:
         7z x love12.zip -o*
         7z x love12/love-macos.zip -o*
     - name: Run Builder
-      env:
-        LOVE_GRAPHICS_DEBUG: 1
       run: |
-        ls
         love-macos/love.app/Contents/MacOS/love --version
         love-macos/love.app/Contents/MacOS/love main.lua example-project/main.lua
+    - name: Check Build
+      run: |
+        ls 
+        ls example-project
 
   windows:
     runs-on: windows-2022
@@ -55,4 +56,5 @@ jobs:
         ls 
         ls love12
         ls resources
+        ls example-project
     
