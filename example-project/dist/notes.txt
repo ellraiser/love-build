@@ -1,0 +1,1 @@
+This is where your output folders will be if you set your build.lua output to 'dist'
