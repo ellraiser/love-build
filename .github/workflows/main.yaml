@@ -22,7 +22,7 @@ jobs:
       run: |
         ls
         love-macos/love.app/Contents/MacOS/love --version
-        love-macos/love.app/Contents/MacOS/love main.lua ./main.lua
+        love-macos/love.app/Contents/MacOS/love ./ ./main.lua
     - name: Upload Windows
       uses: actions/upload-artifact@v3
       with:
