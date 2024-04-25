@@ -50,5 +50,9 @@ jobs:
         7z x love12.zip -o*
         7z x love12/love-12.0-win64.zip -o*
     - name: Run Builder
-      run: powershell.exe ./love-12.0-win64/love-12.0-win64/lovec.exe ./main.lua ./example-project/main.lua
+      run: powershell.exe ./love-12.0-win64/love-12.0-win64/lovec.exe ./main.lua ./example-project/main.lua windows
+    - name: Check Build
+      run: |
+        unzip example-project/dist/1.0.0/ExampleGame-windows.zip
+        powershell.exe ./example-project/dist/1.0.0/ExampleGame.exe
     
