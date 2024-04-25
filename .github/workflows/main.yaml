@@ -19,12 +19,12 @@ jobs:
       shell: bash
       run: |
         ls
-        sudo chmod -R a+x love-build.app
+        sudo chmod 755 love-build.app
         sudo love-build.app/Contents/MacOS/love example-project/main.lua
     - name: Check Run
       shell: bash
       run: |
         unzip example-project/dist/1.0.0/ExampleGame-macos.zip
-        sudo chmod -R a+x ExampleGame.app
+        sudo chmod 755 ExampleGame.app
         sudo ExampleGame.app/Contents/MacOS/love
         exit 0
