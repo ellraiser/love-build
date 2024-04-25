@@ -19,7 +19,7 @@ jobs:
       run: |
         ls
         chmod -R +x love-build.app
-        love-build.app example-project/main.lua
+        open love-build.app --args example-project/main.lua
     - name: Check Run
       run: |
         unzip example-project/dist/1.0.0/ExampleGame-macos.zip
