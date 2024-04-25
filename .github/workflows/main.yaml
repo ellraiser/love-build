@@ -55,6 +55,25 @@ jobs:
       run: |
         ls example-project/dist/1.0.0
         powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe example-project/dist/1.0.0/ExampleGame.love
+    - name: Build Builder
+      run: |
+        powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe main.lua --version
+        powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe main.lua main.lua
+    - name: Upload Windows
+      uses: actions/upload-artifact@v3
+      with:
+        name: love-build-0.4-windows
+        path: dist/0.4/love-build-windows.zip
+    - name: Upload MacOS
+      uses: actions/upload-artifact@v3
+      with:
+        name: love-build-0.4-macos
+        path: dist/0.4/love-build-macos.zip
+    - name: Upload Linux
+      uses: actions/upload-artifact@v3
+      with:
+        name: love-build-0.4-linux
+        path: dist/0.4/love-build-linux.zip
 
   linux:
     runs-on: ubuntu-22.04
@@ -99,25 +118,6 @@ jobs:
       run: |
         ls example-project/dist/1.0.0
         love12/love12.AppImage example-project/dist/1.0.0/ExampleGame.love
-    - name: Build Builder
-      run: |
-        love12/love12.AppImage main.lua --version
-        love12/love12.AppImage main.lua main.lua
-    - name: Upload Windows
-      uses: actions/upload-artifact@v3
-      with:
-        name: love-build-0.4-windows
-        path: dist/0.4/love-build-windows.zip
-    - name: Upload MacOS
-      uses: actions/upload-artifact@v3
-      with:
-        name: love-build-0.4-macos
-        path: dist/0.4/love-build-macos.zip
-    - name: Upload Linux
-      uses: actions/upload-artifact@v3
-      with:
-        name: love-build-0.4-linux
-        path: dist/0.4/love-build-linux.zip
     - name: Stop xvfb and openbox
       # should always stop xvfb and openbox even if other steps failed
       if: always()
