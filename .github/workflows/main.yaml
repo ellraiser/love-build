@@ -14,7 +14,7 @@ jobs:
       run: curl -L https://github.com/ellraiser/love-build/releases/download/v0.3/love-build-0.3-macos.zip > love-build-0.3.zip
     - name: Extract Builder
       run: |
-        unzip love-build-0.3.zip -q
+        unzip love-build-0.3.zip
     - name: Run Builder
       run: |
         ls
