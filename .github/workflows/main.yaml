@@ -5,6 +5,41 @@ on: [push, pull_request]
 
 jobs:
 
+  build:
+    runs-on: macos-12
+    permissions:
+      checks: write
+      pull-requests: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      path: builder
+    - name: Download Love
+      run: |
+        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1348650151/zip"
+        7z x love12.zip -o*
+        7z x love12/love-macos.zip -o*
+    - name: Build Builder
+      run: |
+        mkdir builder/dist
+        love-macos/love.app/Contents/MacOS/love --version
+        love-macos/love.app/Contents/MacOS/love main.lua builder/main.lua
+    - name: Upload Windows
+      uses: actions/upload-artifact@v3
+      with:
+        name: love-build-0.4-windows
+        path: builder/dist/0.4/love-build-windows.zip
+    - name: Upload MacOS
+      uses: actions/upload-artifact@v3
+      with:
+        name: love-build-0.4-macos
+        path: builder/dist/0.4/love-build-macos.zip
+    - name: Upload Linux
+      uses: actions/upload-artifact@v3
+      with:
+        name: love-build-0.4-linux
+        path: builder/dist/0.4/love-build-linux.zip
+
   macos:
     runs-on: macos-12
     permissions:
@@ -55,25 +90,6 @@ jobs:
       run: |
         ls example-project/dist/1.0.0
         powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe example-project/dist/1.0.0/ExampleGame.love
-    - name: Build Builder
-      run: |
-        powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe main.lua --version
-        powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe main.lua ./main.lua
-    - name: Upload Windows
-      uses: actions/upload-artifact@v3
-      with:
-        name: love-build-0.4-windows
-        path: dist/0.4/love-build-windows.zip
-    - name: Upload MacOS
-      uses: actions/upload-artifact@v3
-      with:
-        name: love-build-0.4-macos
-        path: dist/0.4/love-build-macos.zip
-    - name: Upload Linux
-      uses: actions/upload-artifact@v3
-      with:
-        name: love-build-0.4-linux
-        path: dist/0.4/love-build-linux.zip
 
   linux:
     runs-on: ubuntu-22.04
