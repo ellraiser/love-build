@@ -58,7 +58,7 @@ jobs:
     - name: Build Builder
       run: |
         powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe main.lua --version
-        powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe main.lua main.lua
+        powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe main.lua ./main.lua
     - name: Upload Windows
       uses: actions/upload-artifact@v3
       with:
