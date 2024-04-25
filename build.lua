@@ -6,6 +6,6 @@ return {
   icon = 'resources/love-hammer.png',
   identifier = 'com.love.build',
   ignore = {
-    'dist', 'example-project', 'love12', 'love-macos'
+    'dist', 'example-project', 'love12', 'love12.zip', 'love-macos'
   }
 }
