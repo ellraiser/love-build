@@ -661,7 +661,9 @@ love.squashfs = {
           local final_data = file_data .. fragment_data
           if file_size ~= #final_data then
             print('love.squashfs > WARN: file data doesnt match size expected', n, file_size, #final_data, file_size - #final_data)
-            return nil, 'Error: Failed to read file correctly'
+            -- some files seem to be compressed more efficiently than love.decompress deflates to
+            -- in these cases the written bytes (final_data) is higher than the file_size expected 
+            -- so far with love source appimages this has been fine to leave as a warning
           end
           -- for the next inode header need to offset by the block size bytes
           -- as this will vary based on the file
@@ -783,6 +785,7 @@ love.squashfs = {
           local output_path = output:gsub('%-', '%--')
           local manual_path = inode.path:gsub(output_path, '')
           local symlink_local = manual_path .. '/' .. inode.name
+          print('love.squashfs > ', symlink_local, manual_path)
           table.insert(self.symlinks, {symlink_local:sub(2, #symlink_local), inode.data})
 
         -- otherwise create symlink based on symlink entry data 

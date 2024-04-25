@@ -121,6 +121,9 @@ love.zip = {
         else
           compressed = love.data.decompress('string', 'deflate', filedata)
         end
+        if ok == false then
+          print('love.zip > WARN: failed to decompressed file', compressionformat, actualname)
+        end
       end
 
       -- remap entries if needed

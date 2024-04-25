@@ -3,7 +3,7 @@ An app (built in LÖVE!) for quickly packaging LÖVE games for distribution, bas
 
 The goal is to make something eventually maintained by the LÖVE team that can let new developers build their games cross-platform from their own machine in a single step - with zero dependencies and no need for VMs.
 
-*This app will build + export your game for LÖVE (.love), Windows (.exe), MacOS (.app), and Linux (.zip)!*
+*This app will build + export your game for LÖVE (.love), Windows (.exe), MacOS (.app), and Linux (.zip) - regardless of the platform you're developing on!*
 
 ![alt text](resources/preview.png)
 
