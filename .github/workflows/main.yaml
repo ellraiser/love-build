@@ -14,11 +14,11 @@ jobs:
       run: curl -L https://github.com/ellraiser/love-build/releases/download/v0.3/love-build-0.3-macos.zip > love-build-0.3.zip
     - name: Extract Builder
       run: |
-        ls
-        unzip love-build-0.3.zip 
+        unzip love-build-0.3.zip -q
     - name: Run Builder
       run: |
-        chmod a+x __MACOSX/love-build.app/Contents/MacOS/love
+        ls
+        chmod a+x __MACOSX/love-build.app
         __MACOSX/love-build.app/Contents/MacOS/love example-project/main.lua
     - name: Check Run
       run: |
