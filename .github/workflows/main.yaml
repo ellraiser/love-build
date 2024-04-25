@@ -20,6 +20,7 @@ jobs:
         7z x love12/love-macos.zip -o*
     - name: Build Builder
       run: |
+        ls
         love-macos/love.app/Contents/MacOS/love --version
         love-macos/love.app/Contents/MacOS/love main.lua ./main.lua
     - name: Upload Windows
