@@ -179,7 +179,7 @@ return {
     love.build.log('ignoring: "' .. table.concat(opts.ignore, ',') .. '"')
 
     -- compress specific files/folders manually
-    local zip = love.zip:newZip(true)
+    local zip = love.zip:newZip(false)
     zip:addFolder('project', opts.ignore) -- directory contents with ignore list
     local compress, err = zip:finish(lovefile)
     if compress ~= true then
@@ -288,7 +288,7 @@ return {
     end
 
     -- zip file output, ignoring some files
-    local zip = love.zip:newZip(true)
+    local zip = love.zip:newZip(false)
     local compress, err = zip:compress('temp/' .. srcdir, zipfile, {
       'love.exe', 'lovec.exe', 'changes.txt', 'readme.txt', 'love.ico'
     })
@@ -413,7 +413,7 @@ return {
     end
 
     -- zip file output
-    local zip = love.zip:newZip(true, true)
+    local zip = love.zip:newZip(false, true)
     local compress, err = zip:compress('temp/' .. srcdir, zipfile, {}, unzip.symlinks)
     if compress == false then
       return love.build.err('failed to zip up macos output: "' .. err .. '"')
@@ -551,7 +551,7 @@ return {
     -- repackage binary, then concatFiles with the runtime-fuse2
 
     -- for now just zip up contents as the linux build
-    local zip = love.zip:newZip(true, true)
+    local zip = love.zip:newZip(false, true)
     local compress, err = zip:compress('temp/' .. srcdir .. '/squashfs-root', zipfile, {}, squash.symlinks)
     if compress == false then
       return love.build.err('failed to zip up linux output: "' .. err .. '"')
