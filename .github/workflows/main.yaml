@@ -16,12 +16,15 @@ jobs:
       run: |
         unzip love-build-0.3.zip
     - name: Run Builder
+      shell: bash
       run: |
         ls
-        love-build example-project/main.lua
+        chmod -R a+x love-build.app
+        love-build.app/Contents/MacOS/love example-project/main.lua
     - name: Check Run
+      shell: bash
       run: |
         unzip example-project/dist/1.0.0/ExampleGame-macos.zip
         chmod -R +x ExampleGame.app
-        ExampleGame.app
+        ExampleGame.app/Contents/MacOS/love
         exit 0
