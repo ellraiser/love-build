@@ -27,8 +27,7 @@ jobs:
         mkdir builder/dist
         ls
         ls builder
-        love-macos/love.app/Contents/MacOS/love --version
-        love-macos/love.app/Contents/MacOS/love main.lua builder/main.lua
+        love-macos/love.app/Contents/MacOS/love main.lua ./builder/main.lua
     - name: Upload Windows
       uses: actions/upload-artifact@v3
       with:
@@ -60,7 +59,6 @@ jobs:
         7z x love12/love-macos.zip -o*
     - name: Run Builder
       run: |
-        love-macos/love.app/Contents/MacOS/love --version
         love-macos/love.app/Contents/MacOS/love main.lua example-project/main.lua
     - name: Check Build
       run: |
@@ -89,7 +87,6 @@ jobs:
         7z x love12/love-12.0-win64.zip -o*
     - name: Run Builder
       run: |
-        powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe --version
         powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe main.lua example-project/main.lua
     - name: Check Build
       run: |
@@ -133,7 +130,6 @@ jobs:
         echo "OPENBOXPID=$!" >> $GITHUB_ENV
     - name: Run Builder
       run: |
-        love12/love12.AppImage main.lua --version
         love12/love12.AppImage main.lua example-project/main.lua
     - name: Check Build
       run: |
