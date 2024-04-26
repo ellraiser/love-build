@@ -95,7 +95,8 @@ jobs:
     - name: Check Build
       run: |
         ls example-project/dist/1.0.0
-        love12/love12.AppImage example-project/dist/1.0.0/ExampleGame.love
+        unzip example-project/dist/1.0.0/ExampleGame-linux.zip -d ExampleGame
+        ExampleGame/AppRun
     - name: Stop xvfb and openbox
       # should always stop xvfb and openbox even if other steps failed
       if: always()
