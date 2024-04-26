@@ -560,7 +560,7 @@ return {
     apprunfile = apprunfile .. 'if [ -z "$LUA_CPATH" ]; then\n'
     apprunfile = apprunfile .. '    LUA_CPATH=";"\n'
     apprunfile = apprunfile .. 'fi\n'
-    apprunfile = apprunfile .. 'export LUA_CPATH="$APPDIR/lib/lua/5.1/?.so;$LUA_CPATH"\n'
+    apprunfile = apprunfile .. 'export LUA_CPATH="$APPDIR/lib/?.so;$APPDIR/lib/lua/5.1/?.so;$LUA_CPATH"\n'
     apprunfile = apprunfile .. 'exec "$APPDIR/bin/' .. love.build.opts.name .. '" "$@"\n'
     local apprun = love.filesystem.openFile('temp/' .. srcdir .. '/squashfs-root/AppRun', 'w')
     apprun:write(apprunfile)
