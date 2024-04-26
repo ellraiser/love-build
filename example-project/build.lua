@@ -6,9 +6,9 @@ return {
   love = '11.5',
   ignore = {'dist', '.DS_Store'},
   libs = {
-    macos = {'resources/plugin.dylib'},
-    windows = {'resources/plugin.dll'},
-    linux = {'resources/plugin.so'},
+    macos = {'resources/macos/https.so'},
+    windows = {'resources/windows/https.dll'},
+    linux = {'resources/linux/https.so'},
     all = {'resources/license.txt'}
   },
   icon = 'resources/icon.png',
