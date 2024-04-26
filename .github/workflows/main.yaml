@@ -97,7 +97,7 @@ jobs:
         ls example-project/dist/1.0.0
         7z x example-project/dist/1.0.0/ExampleGame-linux.zip
         ls
-        ExampleGame-linux/AppRun
+        ./AppRun
     - name: Stop xvfb and openbox
       # should always stop xvfb and openbox even if other steps failed
       if: always()
