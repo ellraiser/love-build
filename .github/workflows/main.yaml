@@ -27,12 +27,14 @@ jobs:
         7z x love12/love-macos.zip -o*
     - name: Build Builder
       run: |
-        ls
         mkdir builder/dist
+        echo "/builder"
         ls builder
+        echo "/love-build"
         ls love-build
-        love-macos/love.app/Contents/MacOS/love love-build/main.lua builder/main.lua
-        ls builder/dist
+        love-macos/love.app/Contents/MacOS/love --version
+    #   this next line just holds indefinitely for some reason
+    #   love-macos/love.app/Contents/MacOS/love love-build/main.lua builder/main.lua
     #- name: Upload MacOS
     #  uses: actions/upload-artifact@v3
     #  with:
