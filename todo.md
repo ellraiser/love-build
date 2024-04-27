@@ -33,3 +33,4 @@
   `love-icon` + `love-exedit` both rely on love.graphics for resizing stuff
   so we'd need to recreate the functionality without it, or make people provide 
   all sizes+formats of icons which isn't nice
+  

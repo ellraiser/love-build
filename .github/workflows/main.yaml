@@ -1,4 +1,5 @@
-
+# this builds the 'example-project' game for all 3 OS's using the builder
+# we use love12 to run the builder, however the game is built with 11.5
 
 name: continuous-integration
 on: [push, pull_request]
