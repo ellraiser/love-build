@@ -1,3 +1,5 @@
+print('main.lua')
+
 -- for macos we need to append the source directory to use our .so file in 
 -- the exported version
 if love.system.getOS() == 'OS X' and love.filesystem.isFused() then
@@ -6,11 +8,11 @@ end
 
 -- require our https.so / https.dll and check its loaded
 local https = require('https')
-assert(https ~= nil)
+print(https)
 
 -- print to check console on load
 function love.load()
-  print('hello world!')
+  print('love.load')
 end
 
 -- wait 5s then quit, used by the github workflow

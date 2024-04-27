@@ -23,11 +23,9 @@ jobs:
         love-macos/love.app/Contents/MacOS/love main.lua example-project/main.lua
     - name: Check Build
       run: |
-        ls example-project/dist/1.0.0
         cd example-project/dist/1.0.0
         7z x ExampleGame-macos.zip -o*
-        ls ExampleGame-macos
-        ExampleGame-macos/ExampleGame/Contents/MacOS/love
+        ExampleGame-macos/ExampleGame.app/Contents/MacOS/love
 
   windows:
     runs-on: windows-2022
