@@ -1,14 +1,18 @@
--- mount source dir for any dll files
--- this is so macos/linux pickup the .so file within the output
-love.filesystem.mount(love.filesystem.getSourceBaseDirectory(), "gamefiles")
+print('main.lua')
 
--- require out https.so / https.dll 
+-- for macos we need to append the source directory to use our .so file in 
+-- the exported version
+if love.system.getOS() == 'OS X' and love.filesystem.isFused() then
+  package.cpath = package.cpath .. ';' .. love.filesystem.getSourceBaseDirectory() .. '/?.so'
+end
+
+-- require our https.so / https.dll and check its loaded
 local https = require('https')
-assert(https ~= nil)
+print(https)
 
--- print to check console
+-- print to check console on load
 function love.load()
-  print('hello world!')
+  print('love.load')
 end
 
 -- wait 5s then quit, used by the github workflow
@@ -22,5 +26,6 @@ end
 
 -- say hi!
 function love.draw()
-  love.graphics.print('Hello World! Waiting ' .. tostring(math.floor(6 - wait)) .. 's to close...', 300, 300)
+  love.graphics.print('Hello World! Waiting ' ..
+    tostring(math.floor(6 - wait)) .. 's to close...', 300, 300)
 end

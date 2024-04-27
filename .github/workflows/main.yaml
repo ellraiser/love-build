@@ -23,11 +23,15 @@ jobs:
         love-macos/love.app/Contents/MacOS/love main.lua example-project/main.lua
     - name: Check Build
       run: |
-        ls example-project/dist/1.0.0
-        love-macos/love.app/Contents/MacOS/love example-project/dist/1.0.0/ExampleGame.love
+        cd example-project/dist/1.0.0
+        7z x ExampleGame-macos.zip -o*
+        ExampleGame-macos/ExampleGame.app/Contents/MacOS/love
+        echo "done"
 
   windows:
     runs-on: windows-2022
+    env: 
+      ALSOFT_CONF: resources/alsoft.conf
     permissions:
       checks: write
       pull-requests: write
@@ -51,12 +55,15 @@ jobs:
         powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe main.lua example-project/main.lua
     - name: Check Build
       run: |
-        ls example-project/dist/1.0.0
-        powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe example-project/dist/1.0.0/ExampleGame.love
+        cd example-project/dist/1.0.0
+        7z x ExampleGame-windows.zip -o*
+        powershell.exe ExampleGame-windows/ExampleGame.exe
+        echo "done"
 
   linux:
     runs-on: ubuntu-22.04
     env:
+      ALSOFT_CONF: resources/alsoft.conf
       DISPLAY: :99
     steps:
     - name: Update APT
