@@ -26,7 +26,8 @@ jobs:
         ls example-project/dist/1.0.0
         cd example-project/dist/1.0.0
         7z x ExampleGame-macos.zip -o*
-        ls
+        ls ExampleGame-macos
+        ExampleGame-macos/ExampleGame/Contents/MacOS/love
 
   windows:
     runs-on: windows-2022
@@ -53,10 +54,8 @@ jobs:
         powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe main.lua example-project/main.lua
     - name: Check Build
       run: |
-        ls example-project/dist/1.0.0
         cd example-project/dist/1.0.0
         7z x ExampleGame-windows.zip -o*
-        ls ExampleGame-windows
         powershell.exe ExampleGame-windows/ExampleGame.exe
 
   linux:
