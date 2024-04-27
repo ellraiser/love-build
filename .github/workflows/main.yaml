@@ -15,6 +15,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
+        path: love-build
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
         path: builder
     - name: Download Love
       run: |
@@ -23,9 +27,11 @@ jobs:
         7z x love12/love-macos.zip -o*
     - name: Build Builder
       run: |
+        ls
         mkdir builder/dist
         ls builder
-        love-macos/love.app/Contents/MacOS/love ./builder/ ./builder/main.lua
+        ls love-build
+        love-macos/love.app/Contents/MacOS/love love-build/main.lua builder/main.lua
         ls builder/dist
     #- name: Upload MacOS
     #  uses: actions/upload-artifact@v3
