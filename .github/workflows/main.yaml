@@ -25,8 +25,8 @@ jobs:
       run: |
         ls example-project/dist/1.0.0
         cd example-project/dist/1.0.0
-        7z ExampleGame-macos.zip -o*
-        ls
+        7z x ExampleGame-macos.zip -o*
+        ExampleGame/Contents/MacOS/love
 
   windows:
     runs-on: windows-2022
@@ -56,7 +56,8 @@ jobs:
         ls example-project/dist/1.0.0
         cd example-project/dist/1.0.0
         7z x ExampleGame-windows.zip -o*
-        ls
+        ls ExampleGame-windows
+        powershell.exe ExampleGame.exe
 
   linux:
     runs-on: ubuntu-22.04
