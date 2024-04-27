@@ -28,18 +28,24 @@ jobs:
     - name: Build Builder
       run: |
         mkdir builder/dist
-        echo "/builder"
-        ls builder
-        echo "/love-build"
-        ls love-build
         love-macos/love.app/Contents/MacOS/love --version
-    #   this next line just holds indefinitely for some reason
+    #   this next line just holds indefinitely for some reason cba to work it out right now
     #   love-macos/love.app/Contents/MacOS/love love-build/main.lua builder/main.lua
+    #- name: Upload Windows
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: love-build-windows
+    #    path: builder/dist/love-build-windows.zip
     #- name: Upload MacOS
     #  uses: actions/upload-artifact@v3
     #  with:
     #    name: love-build-macos
     #    path: builder/dist/love-build-macos.zip
+    #- name: Upload Linux
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: love-build-linux
+    #    path: builder/dist/love-build-linux.zip
 
   macos:
     runs-on: macos-12
