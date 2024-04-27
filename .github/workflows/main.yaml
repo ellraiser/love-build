@@ -6,6 +6,33 @@ on: [push, pull_request]
 
 jobs:
 
+  builder:
+    runs-on: macos-12
+    permissions:
+      checks: write
+      pull-requests: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        path: builder
+    - name: Download Love
+      run: |
+        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1348650151/zip"
+        7z x love12.zip -o*
+        7z x love12/love-macos.zip -o*
+    - name: Build Builder
+      run: |
+        mkdir builder/dist
+        ls builder
+        love-macos/love.app/Contents/MacOS/love ./builder/ ./builder/main.lua
+        ls builder/dist
+    #- name: Upload MacOS
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: love-build-macos
+    #    path: builder/dist/love-build-macos.zip
+
   macos:
     runs-on: macos-12
     permissions:
