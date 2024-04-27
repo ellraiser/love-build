@@ -538,6 +538,9 @@ return {
       local iconf = love.filesystem.openFile('temp/' .. srcdir .. '/squashfs-root/icon.png', 'w')
       iconf:write(i:_resize(img, 256):getString())
       iconf:close()
+      local icond = love.filesystem.openFile('temp/' .. srcdir .. '/squashfs-root/.DirIcon', 'w')
+      icond:write(i:_resize(img, 256):getString())
+      icond:close()
     end
     
     -- create AppRun file and move to temp/squashfs-root/AppRun
