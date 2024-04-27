@@ -102,8 +102,7 @@ jobs:
     - name: Check Build
       run: |
         ls example-project/dist/1.0.0
-        7z x example-project/dist/1.0.0/ExampleGame-linux.zip
-        ls -a
+        7z x -y example-project/dist/1.0.0/ExampleGame-linux.zip
         ./AppRun
     - name: Stop xvfb and openbox
       # should always stop xvfb and openbox even if other steps failed
