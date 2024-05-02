@@ -7,6 +7,6 @@ return {
   identifier = 'com.love.build',
   ignore = {
     'dist', 'example-project',
-    'love12', 'love12.zip', 'love-macos', 'love-build.lua' -- github workflow
+    'love12', 'love12.zip', 'love-macos', -- github workflow
   }
 }
