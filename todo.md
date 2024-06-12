@@ -11,6 +11,8 @@
 
 # Future Stuff
 [misc]
+- create github workflow action for people to use
+- add pre/post build hooks to allow for custom cmds through os.execute
 - wildcards * for ignore/lib paths
 
 [linux]
