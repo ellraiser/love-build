@@ -31,7 +31,7 @@ return {
   libs = { -- files to place in output directly rather than fuse
     windows = {'resources/plugin.dll'}, -- can specify per platform or "all"
     all = {'resources/license.txt'}
-  }
+  },
   platforms = {'windows'} -- set if you only want to build for a specific platform
   
 }
