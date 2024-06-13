@@ -14,6 +14,13 @@ if love.window and love.graphics then
     " AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz+#:-'!?.0123456789,/ %()çö<_", 1)
 end
 
+local build_hooks = {
+  pre_lovefile = 'pre_lovefile',    -- function(zip) --> zip: the <game>.zip object before adding any files to it
+  post_lovefile = 'post_lovefile',  -- function(output_zip) --> output_zip: the filename if the final .zip file
+  pre_build = 'pre_build',          -- function(zip) --> zip: the <target>.zip object before adding any files to it
+  post_build = 'post_build',        -- function(output_zip) --> output_zip: the filename if the final .zip file
+}
+
 return {
 
   -- setup general love.build properties
@@ -156,6 +163,9 @@ return {
       end
     end
 
+    -- build hooks
+    love.build.opts.hooks = opts.hooks or {}
+
     -- print options out for sense checking
     for key, value in pairs(love.build.opts) do
       love.build.log('  ' .. key .. ': ' .. tostring(value) )
@@ -193,6 +203,7 @@ return {
 
     -- compress specific files/folders manually
     local zip = love.zip:newZip(false)
+    love.build.callHook(build_hooks.pre_lovefile, zip)
     zip:addFolder('project', opts.ignore) -- directory contents with ignore list
     local compress, err = zip:finish(lovefile)
     if compress ~= true then
@@ -205,6 +216,7 @@ return {
       return love.build.err('failed to create .lovefile')
     end
 
+    love.build.callHook(build_hooks.post_lovefile, lovefile)
     love.build.log('created "' .. lovefile .. '"')
 
     -- what we make next depends on settings
@@ -313,6 +325,7 @@ return {
 
     -- zip file output, ignoring some files
     local zip = love.zip:newZip(false)
+    love.build.callHook(build_hooks.pre_build, zip)
     local compress, err = zip:compress('temp/' .. srcdir, zipfile, {
       'love.exe', 'lovec.exe', 'changes.txt', 'readme.txt', 'love.ico'
     })
@@ -320,6 +333,7 @@ return {
       return love.build.err('failed to zip up windows output: "' .. err .. '"')
     end
 
+    love.build.callHook(build_hooks.post_build, zipfile)
     love.build.log('built windows ' .. wbit .. ' successfully')
 
     -- what we make next depends on settings
@@ -846,5 +860,10 @@ return {
     love.filesystem.write('output/' .. love.build.folder .. '/build.log', logdata)
   end,
 
+  callHook = function(hook, ...)
+    if love.build.opts.hooks[hook] then
+      love.build.opts.hooks[hook](...)
+    end
+  end,
 
 }
