@@ -1,6 +1,14 @@
 -- load love.build 
 love.build = require('love-build')
 
+local errhand = love.errorhandler or love.errhand
+assert(errhand, "Unable to find default error handler!")
+function love.errorhandler(msg)
+  love.build.log((debug.traceback("Error: " .. tostring(msg), 4):gsub("\n[^\n]+$", "")))
+  love.build.dumpLogs()
+  return errhand(msg)
+end
+
 -- handle argument on start
 love.load = function(args)
   love.build.log('start')
