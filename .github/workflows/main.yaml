@@ -6,11 +6,6 @@ on: [push, pull_request]
 
 jobs:
 
-  linux:
-    runs-on: ubuntu-22.04
-    env:
-      ALSOFT_CONF: resources/alsoft.conf
-      DISPLAY: :99
   builder:
     runs-on: ubuntu-22.04
     env:
