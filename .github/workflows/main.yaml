@@ -52,12 +52,21 @@ jobs:
         openbox &
         echo "OPENBOXPID=$!" >> $GITHUB_ENV
     - name: Build Builder
+      # this always hangs indefinitely for no reason
       run: |
         mkdir builder/dist
         love12/love12.AppImage --version
-        love12/love12.AppImage love-build/main.lua builder/main.lua
-    #   this next line just holds indefinitely for some reason cba to work it out right now
-    #   love-macos/love.app/Contents/MacOS/love love-build/main.lua builder/main.lua
+        echo 'love-build'
+        ls love-build
+        echo 'builder'
+        ls builder
+#        love12/love12.AppImage love-build/main.lua builder/main.lua
+    - name: Stop xvfb and openbox
+      # should always stop xvfb and openbox even if other steps failed
+      if: always()
+      run: |
+        kill $XVFBPID
+        kill $OPENBOXPID
     #- name: Upload Windows
     #  uses: actions/upload-artifact@v3
     #  with:
