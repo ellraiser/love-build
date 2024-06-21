@@ -86,6 +86,7 @@ return {
   -- @return {nil}
   readConfig = function()
     love.build.log('reading config')
+    local start_time = love.timer.getTime()
 
     -- check build file exists in mounted project path
     local build_data = love.build.readData('project/build.lua')
@@ -176,6 +177,8 @@ return {
       os.execute(cmd .. ' ' .. love.build.path .. '/' .. love.build.hooks.before_build .. ' ' .. love.build.path)
     end
 
+    love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
+
     love.build.queue = 'makeLovefile'
     love.build.status = 'Making Lovefile...'
 
@@ -187,6 +190,7 @@ return {
   -- @return {nil}
   makeLovefile = function ()
     love.build.log('making lovefile')
+    local start_time = love.timer.getTime()
 
     -- setup paths
     local opts = love.build.opts
@@ -218,6 +222,7 @@ return {
     end
 
     love.build.log('created "' .. lovefile .. '"')
+    love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
 
     -- what we make next depends on settings
     if love.build.targets:find('windows') then
@@ -242,6 +247,7 @@ return {
   --                            this is called automatically after a 64bit 
   -- @return {nil}
   makeWindows = function(build32)
+    local start_time = love.timer.getTime()
 
     -- decide on bit
     local wbit = 'win64'
@@ -334,6 +340,7 @@ return {
     end
 
     love.build.log('built windows ' .. wbit .. ' successfully')
+    love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
 
     -- what we make next depends on settings
     if build32 == nil and love.build.opts.use32bit == true then
@@ -357,6 +364,7 @@ return {
   -- @return {nil}
   makeMacOS = function()
     love.build.log('building macos')
+    local start_time = love.timer.getTime()
     
     -- get source file
     local srcfile = 'love-' .. love.build.opts.love .. '-macos.zip'
@@ -468,6 +476,7 @@ return {
     end
 
     love.build.log('built macos successfully')
+    love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
 
     -- what we make next depends on settings
     if love.build.targets:find('linux') then
@@ -486,6 +495,7 @@ return {
   -- @return {nil}
   makeLinux = function()
     love.build.log('building linux')
+    local start_time = love.timer.getTime()
 
     -- get source file
     local srcfile = 'love-' .. love.build.opts.love .. '-x86_64.AppImage'
@@ -617,6 +627,7 @@ return {
     end
 
     love.build.log('built linux successfully')
+    love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
 
     -- all done, finish up
     love.build.queue = 'finishBuild'
@@ -668,7 +679,7 @@ return {
     -- finalise build
     love.build.status = 'Build Finished'
     local time = love.timer.getTime() - love.build.start
-    love.build.log('build finished in ' .. tostring(time) .. 's')
+    love.build.log('build finished in ' .. love.build.formatTime(time))
     love.build.dumpLogs()
 
     -- open path to output
@@ -866,6 +877,13 @@ return {
     local logdata = table.concat(love.build.logs, '\n')
     love.filesystem.write('output/' .. love.build.folder .. '/build.log', logdata)
   end,
+
+  -- @method - love.build.formatTime
+  -- @desc - formats seconds nicely
+  -- @return {string} - returns formatted number as string
+  formatTime = function(seconds)
+    return string.format("%.3f", tostring(seconds)) .. 's'
+  end
 
 
 }

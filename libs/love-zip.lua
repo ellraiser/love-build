@@ -29,7 +29,9 @@ love.zip = {
       symlinks = {},
       manual_symlink = manual_symlink or false,
       logs = logs,
-      offset = 0
+      offset = 0,
+      start_time = 0,
+      end_time = 0
     }
     -- by handling symlinks manually you can remove the requirement on Windows
     -- to 'Run As System Administrator' if you're just going to rezip the
@@ -54,6 +56,7 @@ love.zip = {
   decompress = function(self, path, output, remapping)
 
     -- make sure we can read the zip first
+    self.start_time = love.timer.getTime()
     local content, err = love.filesystem.read(path)
     if content == nil then
       print('love.zip > ERROR: ' .. err)
@@ -236,7 +239,8 @@ love.zip = {
     end
 
     self:_log('finished writing')
-    print('love.zip > finished decompression')
+    self.end_time = love.timer.getTime()
+    print('love.zip > finished decompression in ' .. tostring(self.end_time - self.start_time) .. 's')
 
     return true, nil
 
@@ -254,6 +258,7 @@ love.zip = {
     ]]
   compress = function(self, path, output, ignore, symlinks)
     print('love.zip > compressing directory: "' .. path .. '"')
+    self.start_time = love.timer.getTime()
     if ignore == nil then ignore = {} end
     if output == nil then output = '' end
     self.path = output
@@ -433,8 +438,9 @@ love.zip = {
 
     -- write full zip data to file
     local suc, err = love.filesystem.write(self.path, zipdata .. centraldir .. endcentral)
+    self.end_time = love.timer.getTime()
     if suc == true then
-      print('love.zip > finished compression')
+      print('love.zip > finished compression in ' .. tostring(self.end_time - self.start_time) .. 's')
       return true, nil
     else
       print('love.zip > ERROR: failed to write final zip: "' .. err .. '"')
@@ -640,15 +646,15 @@ love.zip = {
   -- @NOTE ported from C example here:
   -- https://en.wikipedia.org/wiki/Computation_of_cyclic_redundancy_checks#CRC-32_algorithm
   -- bit slow but guess can't help that given what it's doing?
-
   _crc32 = function(self, data)
     -- cache modules for long ops recommended here
     -- http://bitop.luajit.org/api.html
     local band, bxor, rshift = bit.band, bit.bxor, bit.rshift
+    local sbyte, ssub = string.byte, string.sub
     local crc32 = 0xFFFFFFFF
     local data_len = #data
     for d=1,data_len do
-      local byte = string.byte(data:sub(d, d))
+      local byte = sbyte(ssub(data, d, d))
       local lookup = band(bxor(crc32, byte), 0xFF)
       crc32 = bxor(rshift(crc32, 8), self._crctable[lookup+1])
     end
