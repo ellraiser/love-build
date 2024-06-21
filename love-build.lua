@@ -280,6 +280,7 @@ return {
       local modified_exe = love.exedit.updateIcon('temp/' .. srcdir .. '/love.exe', 'project/' .. opts.icon)
       local srcexe = love.filesystem.openFile('temp/' .. srcdir .. '/love.exe', 'w')
       srcexe:write(modified_exe)
+      srcexe:close()
     end
 
 
