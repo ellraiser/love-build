@@ -1,7 +1,4 @@
 # Before 1.0
-[misc]
-- improve zip speed, bottleneck is crc32 checksum i think?
-
 [love-exedit]
 - add VERSION_INFO modifier for `love-exedit`
 
@@ -12,8 +9,8 @@
 # Future Stuff
 [misc]
 - create github workflow action for people to use
-- add pre/post build hooks to allow for custom cmds through os.execute
 - wildcards * for ignore/lib paths
+- improve zip speed, bottleneck is crc32 checksum i think?
 
 [linux]
 - add `love-squashfs` :compress() for repackaging linux
@@ -23,11 +20,10 @@
 - add option to pass rsrc file
 
 
-
 ---
 
 
-# Probably Won't Add
+# Things Not Being Added
 - option to NOT zip up output and make folders instead, this is because you'd
   require 'Run As System Administrator' for running on windows for macos/linux
   as windows needs `mklink` for making the symlinks (which we avoid by rezipping)
