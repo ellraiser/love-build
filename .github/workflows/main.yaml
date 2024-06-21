@@ -35,7 +35,9 @@ jobs:
         7z x love12.zip -o*
         7z x love12/love-12.0-win64.zip -o*
     - name: Build Builder
-      # this always hangs indefinitely for no reason
+      # this always hangs indefinitely for no reason 
+      # i have tried windows, linux and macos, all same result
+      # given the further tasks work it feels like there's an issue with checking out the repo twice maybe?
       run: |
         mkdir builder/dist
         echo 'builder'
@@ -82,6 +84,15 @@ jobs:
         7z x ExampleGame-macos.zip -o*
         ExampleGame-macos/ExampleGame.app/Contents/MacOS/love
         echo "done"
+    - name: Build Builder
+      run: |
+        mkdir dist
+        love-macos/love.app/Contents/MacOs/love main.lua main.lua
+    - name: Upload MacOS
+      uses: actions/upload-artifact@v3
+      with:
+        name: love-build-macos
+        path: dist/love-build-macos.zip
 
   windows:
     runs-on: windows-2022
