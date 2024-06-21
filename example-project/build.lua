@@ -4,7 +4,7 @@ return {
   output = 'dist',
   version = '1.0.0',
   love = '11.5',
-  ignore = {'dist', '.DS_Store'},
+  ignore = {'dist', '.DS_Store', 'postprocess.sh', 'preprocess.sh'},
   libs = {
     macos = {'resources/macos/https.so'},
     windows = {'resources/windows/https.dll'},

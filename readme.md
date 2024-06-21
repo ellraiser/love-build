@@ -100,7 +100,7 @@ You can view the logs inside `output/version/build.log` after running the builde
 | Failed to create .lovefile                                      | Failed to create lovefile, check logs for info
 | Source download failed                                          | Failed to download release from github
 | Source file must be supplied to build this version              | Specificed version doesn't have a release on github
-| Fatal Error!                                                    | Something triggered love.errorhandler - check build.log for info
+| Fatal Error!                                                    | Something triggered love.errorhandler - check build.log
 
 > Note: If you want to build with 12.0 you'll need to provide the source zips yourself in the `%appdata%/love-build/cache` directory, you can download the builds from the [latest successful workflow action](https://github.com/love2d/love/actions), as the main branch on Github is on version 12. I would recommend building with 11.5 first to see the expected files in your cache.
 
