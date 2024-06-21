@@ -6,12 +6,32 @@ on: [push, pull_request]
 
 jobs:
 
+  linux:
+    runs-on: ubuntu-22.04
+    env:
+      ALSOFT_CONF: resources/alsoft.conf
+      DISPLAY: :99
   builder:
-    runs-on: macos-13
+    runs-on: ubuntu-22.04
+    env:
+      ALSOFT_CONF: resources/alsoft.conf
+      DISPLAY: :99
     permissions:
       checks: write
       pull-requests: write
     steps:
+    - name: Update APT
+      run: sudo apt-get update
+    - name: Install Dependencies
+      run: |
+        sudo apt-get install --assume-yes build-essential git make cmake autoconf automake \
+                                          libtool pkg-config libasound2-dev libpulse-dev libaudio-dev \
+                                          libjack-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev \
+                                          libxfixes-dev libxi-dev libxinerama-dev libxxf86vm-dev libxss-dev \
+                                          libgl1-mesa-dev libdbus-1-dev libudev-dev libgles2-mesa-dev \
+                                          libegl1-mesa-dev libibus-1.0-dev fcitx-libs-dev libsamplerate0-dev \
+                                          libsndio-dev libwayland-dev libxkbcommon-dev libdrm-dev libgbm-dev \
+                                          libfuse2 wmctrl openbox
     - name: Checkout
       uses: actions/checkout@v4
       with:
@@ -22,14 +42,27 @@ jobs:
         path: builder
     - name: Download Love
       run: |
-        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1623258183/zip"
+        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1623260758/zip"
         7z x love12.zip -o*
-        7z x love12/love-macos.zip -o*
+        mv love12/love-*.AppImage love12/love12.AppImage
+        ls love12
+        chmod +x love12/love12.AppImage
+    - name: Start xvfb and openbox
+      run: |
+        echo "Starting XVFB on $DISPLAY"
+        Xvfb $DISPLAY -screen 0, 360x240x24 &
+        echo "XVFBPID=$!" >> $GITHUB_ENV
+        # wait for xvfb to startup (3s is the same amount xvfb-run waits by default)
+        sleep 3
+        openbox &
+        echo "OPENBOXPID=$!" >> $GITHUB_ENV
     - name: Build Builder
       run: |
         mkdir builder/dist
-        love-macos/love.app/Contents/MacOS/love --version
-        love-macos/love.app/Contents/MacOS/love love-build/main.lua builder/main.lua
+        love12/love12.AppImage --version
+        love12/love12.AppImage love-build/main.lua builder/main.lua
+    #   this next line just holds indefinitely for some reason cba to work it out right now
+    #   love-macos/love.app/Contents/MacOS/love love-build/main.lua builder/main.lua
     #- name: Upload Windows
     #  uses: actions/upload-artifact@v3
     #  with:
