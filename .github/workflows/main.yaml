@@ -6,61 +6,15 @@ on: [push, pull_request]
 
 jobs:
 
-  builder:
-    runs-on: windows-2022
-    env: 
-      ALSOFT_CONF: resources/alsoft.conf
-    permissions:
-      checks: write
-      pull-requests: write
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        path: love-build
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        path: builder
-    # we need mesa so that we have a graphics window, which is required to
-    # generate icons using the graphics functions
-    - name: Install Mesa 
-      run: |
-        curl -L --output mesa.7z --url https://github.com/pal1000/mesa-dist-win/releases/download/23.2.1/mesa3d-23.2.1-release-msvc.7z
-        7z x mesa.7z -o*
-        powershell.exe mesa\systemwidedeploy.cmd 1
-    - name: Download Love
-      run: |
-        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1623262959/zip"
-        7z x love12.zip -o*
-        7z x love12/love-12.0-win64.zip -o*
-    - name: Build Builder
-      # this always hangs indefinitely for no reason 
-      # i have tried windows, linux and macos, all same result
-      # given the further tasks work it feels like there's an issue with checking out the repo twice maybe?
-      run: |
-        mkdir builder/dist
-        echo 'builder'
-        ls builder
-        echo 'love-build'
-        ls love-build
-        powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe --version
-    #    powershell.exe love-12.0-win64/love-12.0-win64/lovec.exe love-build/main.lua ../builder/main.lua
-    #- name: Upload Windows
-    #  uses: actions/upload-artifact@v3
-    #  with:
-    #    name: love-build-windows
-    #    path: builder/dist/love-build-windows.zip
-    #- name: Upload MacOS
-    #  uses: actions/upload-artifact@v3
-    #  with:
-    #    name: love-build-macos
-    #    path: builder/dist/love-build-macos.zip
-    #- name: Upload Linux
-    #  uses: actions/upload-artifact@v3
-    #  with:
-    #    name: love-build-linux
-    #    path: builder/dist/love-build-linux.zip
+  # builder?
+  # it'd be nice to be able to build the builder for automatic uploads rather than have to do releases
+  # when I make releases locally I just do 'love ./ ./main.lua' in this repo to build the builder using itself
+  # however trying to do this in a workflow hangs indefinitely for no reason (no error logged)
+  # i have tried windows, linux and macos, all same result
+  # i have tried checking out the repo twice to have 2 different folders
+  # i have also tried doing a builder build within each OS process, same thing
+  # ultimately it's probably better to do set releases rather than always have builds
+  # but just leaving this here for the next person who wastes several hours on it
 
   macos:
     runs-on: macos-12
@@ -84,15 +38,6 @@ jobs:
         7z x ExampleGame-macos.zip -o*
         ExampleGame-macos/ExampleGame.app/Contents/MacOS/love
         echo "done"
-    - name: Build Builder
-      run: |
-        mkdir dist
-        love-macos/love.app/Contents/MacOs/love main.lua main.lua
-    - name: Upload MacOS
-      uses: actions/upload-artifact@v3
-      with:
-        name: love-build-macos
-        path: dist/love-build-macos.zip
 
   windows:
     runs-on: windows-2022
