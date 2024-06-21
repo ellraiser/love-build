@@ -60,13 +60,56 @@ love.update = function(dt)
   end
 end
 
+-- custom crash handler
+love.errorhandler = function(msg)
+
+  -- set status
+  love.build.status = {
+    {1, 1, 1, 1}, 'Fatal Error!\n',
+    {238/255, 101/255, 169/255, 1}, msg
+  }
+
+  -- dump logs
+  love.build.log('fatal error!')
+  love.build.log((debug.traceback("Error: " .. tostring(msg), 4):gsub("\n[^\n]+$", "")))
+  love.build.dumpLogs()
+
+  -- open logs file
+  love.system.openURL('file://' .. love.filesystem.getSaveDirectory() .. '/output/' .. love.build.folder)
+
+  -- add present to def draw
+  local function draw()
+    love.draw()
+    love.graphics.present()
+  end
+
+  -- return function for error screen
+  return function()
+		love.event.pump()
+		for e, a, b, c in love.event.poll() do
+			if e == "quit" then
+				return 1
+			elseif e == "keypressed" and a == "escape" then
+				return 1
+			end
+		end
+    love.graphics.reset()
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.origin()
+    draw()
+		if love.timer then
+			love.timer.sleep(0.1)
+		end
+	end
+end
+
 -- show status message
 love.draw = function()
   love.build.canvas:renderTo(function()
     love.graphics.clear(20/255, 20/255, 20/255, 1)
     love.graphics.setFont(love.build.font)
-    love.graphics.draw(love.build.logo, 160 - 32, 80 - 32 - 10)
-    love.graphics.printf(love.build.status, 10, 120, 300, 'center')
+    love.graphics.draw(love.build.logo, 160 - 32, 80 - 32 - 15)
+    love.graphics.printf(love.build.status, 10, 105, 300, 'center')
   end)
   love.graphics.draw(love.build.canvas, 0, 0, 0, 2, 2)
 end

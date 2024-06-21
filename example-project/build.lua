@@ -11,6 +11,10 @@ return {
     linux = {'resources/linux/https.so'},
     all = {'resources/license.txt'}
   },
+  hooks = {
+    before_build = 'resources/preprocess.sh',
+    after_build = 'resources/postprocess.sh'
+  },
   icon = 'resources/icon.png',
   platforms = {'windows', 'macos', 'linux'}
 }

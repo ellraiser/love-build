@@ -27,6 +27,7 @@ return {
   os = 'windows',
   opts = {},
   logs = {},
+  hooks = {},
   quit = false,
   queue = '',
   update_time = 0,
@@ -156,6 +157,9 @@ return {
       end
     end
 
+    -- hooks if used
+    love.build.hooks = opts.hooks or {}
+
     -- print options out for sense checking
     for key, value in pairs(love.build.opts) do
       love.build.log('  ' .. key .. ': ' .. tostring(value) )
@@ -163,6 +167,14 @@ return {
 
     love.build.folder = string.lower(love.build.opts.name) .. '_' .. love.build.opts.version
     love.build.folder = string.gsub(love.build.folder, ' ', '_')
+
+    -- run preprocess if any 
+    if love.build.hooks.before_build then
+      love.build.log('preprocess: ' .. love.build.path .. '/' .. love.build.hooks.before_build)
+      local cmd = 'sh'
+      if love.build.os == 'windows' then cmd = 'bash' end
+      os.execute(cmd .. ' ' .. love.build.path .. '/' .. love.build.hooks.before_build .. ' ' .. love.build.path)
+    end
 
     love.build.queue = 'makeLovefile'
     love.build.status = 'Making Lovefile...'
@@ -643,6 +655,14 @@ return {
         if love.build.targets:find('windows') then love.build.copyFile(source .. win64, output .. win64) end
         if love.build.targets:find('linux') then love.build.copyFile(source .. linux, output .. linux) end
       end
+    end
+
+    -- run postprocess if any 
+    if love.build.hooks.after_build then
+      love.build.log('postprocess: ' .. love.build.path .. '/' .. love.build.hooks.after_build)
+      local cmd = 'sh'
+      if love.build.os == 'windows' then cmd = 'bash' end
+      os.execute(cmd .. ' ' .. love.build.path .. '/' .. love.build.hooks.after_build .. ' ' .. love.build.path .. ' ' .. love.build.opts.output)
     end
 
     -- finalise build
