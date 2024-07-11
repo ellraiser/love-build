@@ -9,11 +9,11 @@
 # Future Stuff
 [misc]
 - create github workflow action for people to use
-- wildcards * for ignore/lib paths
-- put module stuff (extract/compress etc) into threads to prevent handing on large files
+- wildcards (*) for ignore/lib paths
+- put module stuff (extract/compress etc) into threads to prevent hanging on large files
 
 [linux]
-- add `love-squashfs` :compress() for repackaging linux
+- add `love-squashfs` :compress() for repackaging linux (chunk cap?)
 - still keep the 'basic' output for linux, maybe -linux vs -AppImage ZIPs
 
 [love-exedit]
