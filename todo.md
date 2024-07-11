@@ -10,7 +10,7 @@
 [misc]
 - create github workflow action for people to use
 - wildcards * for ignore/lib paths
-- improve zip speed, bottleneck is crc32 checksum i think?
+- put module stuff (extract/compress etc) into threads to prevent handing on large files
 
 [linux]
 - add `love-squashfs` :compress() for repackaging linux
