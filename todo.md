@@ -1,4 +1,6 @@
 # Before 1.0
+[misc]
+- would be nice to be able to have multiple configs in `build.lua`, say for steam vs non-steam builds
 [love-exedit]
 - add VERSION_INFO modifier for `love-exedit`
 
