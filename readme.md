@@ -35,7 +35,7 @@ return {
   hooks = { -- hooks to run commands via os.execute before or after building
     before_build = 'resources/preprocess.sh',
     after_build = 'resources/postprocess.sh'
-  }
+  },
   platforms = {'windows'} -- set if you only want to build for a specific platform
   
 }
