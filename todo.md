@@ -1,25 +1,16 @@
-# Before 1.0
-[misc]
-- would be nice to be able to have multiple configs in `build.lua`, say for steam vs non-steam builds
-[love-exedit]
-- add VERSION_INFO modifier for `love-exedit`
-
-
----
-
-
 # Future Stuff
 [misc]
 - create github workflow action for people to use
 - wildcards (*) for ignore/lib paths
-- put module stuff (extract/compress etc) into threads to prevent hanging on large files
+- put module stuff (extract/compress etc) into threads to prevent hanging on large files?
+- would be nice to be able to have multiple configs in `build.lua`, say for steam vs non-steam builds
 
 [linux]
 - add `love-squashfs` :compress() for repackaging linux (chunk cap?)
-- still keep the 'basic' output for linux, maybe -linux vs -AppImage ZIPs
+  + still keep the 'basic' output for linux, maybe -linux vs -AppImage ZIPs
 
 [love-exedit]
-- add option to pass rsrc file
+- file version doesnt seem to update correctly all the time?
 
 
 ---
