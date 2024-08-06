@@ -6,8 +6,8 @@
 - create github workflow action for people to use
 
 [linux]
-- add `love-squashfs` :compress() for repackaging linux (chunk cap check)
-  + still keep the 'basic' output for linux, maybe -linux vs -AppImage ZIPs
+- add `love-squashfs` :compress() for repackaging linux as an AppImage (chunk cap check)
+  + still keep the 'basic' output for linux, i.e. both -linux AND -AppImage ZIPs
 
 [windows]
 - file version doesnt seem to update correctly all the time, need to update the FIXED_FILE_INFO as well I think
