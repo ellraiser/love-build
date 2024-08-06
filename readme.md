@@ -112,6 +112,6 @@ You can view the logs inside `output/version/build.log` after running the builde
 **.AppImages for Linux export**  
 Currently the `love-squashfs` lib handles decompressing squashfs binaries fine, however resquashing them has an issue I'm working on. At the moment the Linux export just uses the same AppImage directory format with a `AppRun` entrypoint and fused binary, which will work fine for most distros so no harm there (it also works a bit better for Steam distribution, just set your installation path as the `AppRun` file)
  
-Once the lib issues are fixed lovebuild could add a proper `.AppImage` if needed, but I think we should still keep the `-linux.zip` output as an option for people who want it, similar to the additional 32bit option windows has.
+Once I fix up the `love-squashfs` compression issue lovebuild could add a proper `.AppImage` if needed, but I think we should still keep the `-linux.zip` output as an option for people who want it, similar to the additional 32bit option windows has.
 
-See [todo.md](todo.md) for stuff planned in future
+See [todo.md](todo.md) for stuff planned in future or ideas for contributions.
