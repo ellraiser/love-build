@@ -385,7 +385,7 @@ love.exedit = {
                 local prefix = new_data:sub(1, rsrc_data_index+lvl3_entry.Position-2)
                 local newimg = newdata:getString() .. string.rep(' ', padding)
                 local suffix = new_data:sub(rsrc_data_index+lvl3_entry.Position-2+lvl3_entry.DataSize+1, #new_data)
-                print('love.exedit >       ICON_ENTRY', ico_sizes[l2], newdata:getSize(), lvl3_entry.DataSize)
+                print('love.exedit >       ICON_ENTRY', ico_sizes[l2], newdata:getSize(), lvl3_entry.DataSize, padding)
                 new_data = prefix .. newimg .. suffix
               end
 
