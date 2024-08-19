@@ -4,6 +4,7 @@
 - put module stuff (extract/compress etc) into threads to prevent hanging on large files?
 - would be nice to be able to have multiple configs in `build.lua`, say for steam vs non-steam builds
 - create github workflow action for people to use
+- option to use an existing `.love` file in the build process rather than make one
 
 [linux]
 - add `love-squashfs` :compress() for repackaging linux as an AppImage (chunk cap check)
