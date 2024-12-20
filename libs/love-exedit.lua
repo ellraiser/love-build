@@ -20,7 +20,7 @@ love.exedit = {
 
   updateIcon = function(exe_file, image_file, debug_mode)
 
-    print('love.exedit > modiying exe file')
+    print('love.exedit > modiying exe file', exe_file)
 
     -- read the data from the file and clone it for later
     local data = love.filesystem.read(exe_file)
@@ -32,6 +32,12 @@ love.exedit = {
     if data:sub(1, 2) ~= 'PE' then
       poffset = love.exedit._readUInt(data, 61, 2)
     end
+    for d=1,256 do
+      local prod = data:sub(d, d+1)
+      if prod == 'PE' then print('found PE at ', d, d+1) end
+    end
+
+    
 
     -- get the PE data using the PE header
     local pdata = data:sub(poffset+1, #data)
@@ -362,7 +368,7 @@ love.exedit = {
                     if gi_entry ~= nil then
                       local gi_size = math.abs(gi_entry.Width)
                       if gi_size == 0 then gi_size = 256 end -- only stores 0-255, cant have 0 so 256 is 0
-                      print('love.exedit >       GROUP_ICON_ENTRY', tostring(gi_size) .. 'px', gi_entry.Id, gi_entry.BytesInRes)
+                      print('love.exedit >       GROUP_ICON_ENTRY', tostring(gi_size) .. 'px', gi_entry.Id, gi_entry.BytesInRes, offset)
                     end
                   end
                 end
@@ -375,17 +381,22 @@ love.exedit = {
               -- if we want to do this properly, we will not only need to update the GROUP_ICON
               -- but ALL resource headers, and section headers because all positions will change
               -- we'll also need to implement and recalc the checksum from the COFF
+
+              -- this will have to be done at some point cos there's not much room anymore
               if lvl1_type == 'ICON' then
-                local newdata = ico_icon:_resize(ico_img, ico_sizes[l2])
-                local padding = lvl3_entry.DataSize - newdata:getSize()
+                local newdata = ico_icon:_resize(ico_img, ico_sizes[l2]):getString()
+                local padding = lvl3_entry.DataSize - #newdata
+                if #newdata > lvl3_entry.DataSize then
+                  print('love.exedit >       WARN: icon png bigger than available size', lvl3_entry.DataSize, #newdata)
+                end
                 if padding < 0 then
-                  newdata = new_data:sub(1, lvl3_entry.DataSize)
+                  newdata = newdata:sub(1, lvl3_entry.DataSize)
                   padding = 0
                 end
                 local prefix = new_data:sub(1, rsrc_data_index+lvl3_entry.Position-2)
-                local newimg = newdata:getString() .. string.rep(' ', padding)
+                local newimg = newdata .. string.rep(' ', padding)
                 local suffix = new_data:sub(rsrc_data_index+lvl3_entry.Position-2+lvl3_entry.DataSize+1, #new_data)
-                print('love.exedit >       ICON_ENTRY', ico_sizes[l2], newdata:getSize(), lvl3_entry.DataSize, padding)
+                print('love.exedit >       ICON_ENTRY', rsrc_data_index+lvl3_entry.Position-2, ico_sizes[l2], #newdata, lvl3_entry.DataSize, padding)
                 new_data = prefix .. newimg .. suffix
               end
 

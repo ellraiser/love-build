@@ -71,8 +71,11 @@ love.icon = {
     @return {string} returns png encoded data
     ]]
   _resize = function(self, img, size)
-    local png = love.graphics.newCanvas(size, size)
+    local png = love.graphics.newCanvas(size, size, {
+      dpiscale = 1
+    })
     png:renderTo(function()
+      love.graphics.clear(0, 0, 0, 1)
       love.graphics.draw(img, 0, 0, 0, size/img:getWidth(), size/img:getHeight())
     end)
     return png:newImageData():encode('png')
