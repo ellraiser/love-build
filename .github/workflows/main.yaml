@@ -17,7 +17,7 @@ jobs:
   # but just leaving this here for the next person who wastes several hours on it
 
   macos:
-    runs-on: macos-12
+    runs-on: macos-latest
     permissions:
       checks: write
       pull-requests: write
