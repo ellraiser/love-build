@@ -26,7 +26,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Download Love
       run: |
-        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1813869835/zip"
+        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/2197059896/zip"
         7z x love12.zip -o*
         7z x love12/love-macos.zip -o*
     - name: Run Builder
@@ -58,7 +58,7 @@ jobs:
         powershell.exe mesa\systemwidedeploy.cmd 1
     - name: Download Love
       run: |
-        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1813872725/zip"
+        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/2197058450/zip"
         7z x love12.zip -o*
         7z x love12/love-12.0-win64.zip -o*
     - name: Run Builder
@@ -93,7 +93,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Download Love
       run: |
-        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/1813873391/zip"
+        curl -L -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --output love12.zip --url "https://api.github.com/repos/love2d/love/actions/artifacts/2197059853/zip"
         7z x love12.zip -o*
         mv love12/love-*.AppImage love12/love12.AppImage
         ls love12
