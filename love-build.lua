@@ -31,6 +31,7 @@ return {
   configs = 1,
   config = 1,
   config_name = '',
+  config_folder = '',
   cache = '',
   quit = false,
   queue = '',
@@ -180,6 +181,7 @@ return {
     if love.build.opts.config ~= '' then
       love.build.folder = love.build.folder .. '_' .. love.build.opts.config
       love.build.config_name = ' (' .. love.build.opts.config .. ')'
+      love.build.config_folder = love.build.opts.config or ''
     end
     love.build.folder = string.gsub(love.build.folder, ' ', '_')
 
@@ -890,6 +892,9 @@ return {
         mounted = true
         local source = 'output/' .. love.build.folder
         local output = 'poutput/' .. love.build.opts.version
+        if love.build.config_folder ~= '' then
+          output = '/' .. love.build.config_folder
+        end
         love.filesystem.createDirectory(output)
         local lovefile = '/' .. love.build.opts.name .. '.love'
         local macos = '/' .. love.build.opts.name .. '-macos.zip'

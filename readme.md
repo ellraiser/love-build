@@ -122,7 +122,7 @@ return {
 
 }
 ```
-This would result in two built projects, one under `/dist/0.8/steam` and one under `/dist/0.8/nonsteam`.  
+This would result in two built projects, one under `/dist/0.8/steam/` and one under `/dist/0.8/nonsteam/`.  
 The `steam` build would contain the `steamworks.dll` in the export root, the `nonsteam` would not.  
 
 In your game logic you can then read the `lbconfig.lua` file to see if the game is the `steam` config vs the `nonsteam` config and act accordingly.
