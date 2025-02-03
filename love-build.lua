@@ -358,7 +358,7 @@ return {
           love.build.log('adding lib: "' .. value[l] .. '" > "/' .. filename .. '"')
           love.build.copyFile('project/' .. value[l], 'temp/' .. srcdir .. '/' .. filename)
         end
-      elseif key ~= 'macos' and key ~= 'linux' then
+      elseif key ~= 'macos' and key ~= 'linux' and key ~= 'steamdeck' then
         local filename = value
         if filename:find("/[^/]*$") ~= nil then
           filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
@@ -510,7 +510,7 @@ return {
           love.build.copyFile('project/' .. value[l], appcontents .. '/MacOS/' .. filename)
           love.build.copyFile('project/' .. value[l], appcontents .. '/Resources/' .. filename)
         end
-      elseif key ~= 'windows' and key ~= 'linux' then
+      elseif key ~= 'windows' and key ~= 'linux' and key ~= 'steamdeck' then
         local filename = value
         if filename:find("/[^/]*$") ~= nil then
           filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
@@ -667,7 +667,7 @@ return {
           love.build.log('adding lib: "' .. value[l] .. '" > "lib/' .. filename .. '"')
           love.build.copyFile('project/' .. value[l], 'temp/' .. srcdir .. '/squashfs-root/lib/' .. filename)
         end
-      elseif key ~= 'macos' and key ~= 'windows' then
+      elseif key ~= 'macos' and key ~= 'windows' and key ~= 'steamdeck' then
         local filename = value
         if filename:find("/[^/]*$") ~= nil then
           filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
