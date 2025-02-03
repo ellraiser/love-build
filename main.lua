@@ -16,7 +16,7 @@ love.load = function(args)
 
   -- check arguments, should be main.lua path and then optional targets
   love.build.path = args[1]
-  love.build.targets = args[2] or 'windows,macos,linux'
+  love.build.targets = args[2] or 'windows,macos,linux,steamdeck'
 
   -- no path, open window for dropping
   if love.build.path == nil then

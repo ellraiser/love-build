@@ -165,22 +165,23 @@ love.zip = {
       local extraattr =           string.sub(ebytes, 39, 42)
       local offsetpos =           self:_readUInt(ebytes, 43, 4)
       local actualname =          string.sub(content, offsetpos + 31, offsetpos + 30 + filenamesize)
+      local extracommentlen =     self:_readUInt(ebytes, 33, 2)
 
       -- for each file we have the offset, the length of the file (compressed + 30 + filename)
       -- so we just need to pull that as one string to get our actual data
-      local fileoffset = offsetpos + 31 + #actualname + extrasize
+      local fileoffset = offsetpos + 31 + #actualname + extrasize + extracommentlen
       local filedata =   string.sub(content, fileoffset, fileoffset + compressedsize - 1)
       local compressed = filedata
       -- if we failed to compress we dont recognise the format 
       if filedata ~= '' and compressionformat == 8 then
-        local ok, _ = pcall(love.data.decompress, 'string', 'deflate', filedata)
+        local ok, perr = pcall(love.data.decompress, 'string', 'deflate', filedata)
         if ok == false then
           compressed = filedata
         else
           compressed = love.data.decompress('string', 'deflate', filedata)
         end
         if ok == false then
-          print('love.zip > WARN: failed to decompressed file', compressionformat, actualname)
+          print('love.zip > WARN: failed to decompressed file', compressionformat, actualname, perr)
         end
       end
 

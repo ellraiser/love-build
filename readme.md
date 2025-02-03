@@ -3,7 +3,7 @@ An app (built in LÖVE!) for quickly packaging LÖVE games for distribution, bas
 
 The goal is to make something eventually maintained by the LÖVE team that can let new developers build their games cross-platform from their own machine in a single step - with zero dependencies and no need for VMs.
 
-*This app will build + export your game for LÖVE (.love), Windows (.exe), MacOS (.app), and Linux (.zip) - regardless of the platform you're developing on!*
+*This app will build + export your game for LÖVE (.love), Windows (.exe), MacOS (.app), Linux (.zip), and Steamdeck (.zip) - regardless of the platform you're developing on!*
 
 ![alt text](resources/preview.png)
 
@@ -45,7 +45,7 @@ Then download the build application for your OS from the [releases](https://gith
 
 To use the app directly, simply run it. You will see a screen prompting you to drag your `main.lua` file into the app - doing so will start the build process and export your game, opening the export location when finished. A `build.log` file will also be created to view any errors (see [Troubleshooting](#troubleshooting) for common issues).
 
-You can view the `example-project` in this repository for an example setup/config.
+You can view the `example-project` in this repository for an example setup.
 
 > Note: First time builds will be slower due to downloading and caching LÖVE source files - after that it'll be much faster!
 
@@ -68,7 +68,7 @@ You can also pass a second option to specify the target platforms you want - by 
 
 
 ## Cross-Platform Building
-Regardless of the platform you run the builder from it will export your game to all 3 platforms.  
+Regardless of the platform you run the builder from it will export your game to all 4 platforms.  
 These will each be put in their own `.zip` file inside the `output/version` folder specified by your `build.lua`.
 
 | Build From  | Windows | MacOS | Linux |
@@ -76,10 +76,56 @@ These will each be put in their own `.zip` file inside the `output/version` fold
 | Windows     |    ✓    |   ✓   |   ✓^  |
 | MacOS       |    ✓    |   ✓   |   ✓^  |
 | Linux       |    ✓    |   ✓   |   ✓^  |
+| Steamdeck   |    ✓    |   ✓   |   ✓*  |
 
 ^ Linux builds are currently a 'basic' export, not an AppImage - chmod+run the `AppRun` file to run
+* Steamdeck builds are just a linux export, seperated so you can have a different build/config for the `Steamdeck` depot that Steam now offers developers
 
 > Note: MacOS builds are _not_ signed so are not suitable for AppStore distribution
+
+
+---
+
+
+## Configurations
+In your built project files you might notice a `lbconfig.lua` file.  
+This contains some basic details about the configuration used to build that particular project, allowing your game to consume the file and run logic based on it.
+
+You can setup multiple configurations by making your `build.lua` return a list of configurations.  
+You should add a `config` key to differentiate the configurations, which will be added to your output location.
+
+An example `build.lua` that creates a 'steam' and 'non-steam' version of the game for Windows:
+```lua
+return {
+
+  {
+    name = 'ExampleGame',
+    config = 'steam',
+    version = '0.8',
+    love = '11.5',
+    icon = 'resources/love-hammer.png',
+    platforms = {'windows'},
+    libs = {
+      windows = {'resources/steamworks.dll'},
+    }
+    ignore = {'dist'}
+  },
+  {
+    name = 'ExampleGame',
+    config = 'nonsteam',
+    version = '0.8',
+    love = '11.5',
+    icon = 'resources/love-hammer.png',
+    platforms = {'windows'},
+    ignore = {'dist', 'resources/steamworks.dll'}
+  }
+
+}
+```
+This would result in two built projects, one under `/dist/0.8/steam` and one under `/dist/0.8/nonsteam`.  
+The `steam` build would contain the `steamworks.dll` in the export root, the `nonsteam` would not.  
+
+In your game logic you can then read the `lbconfig.lua` file to see if the game is the `steam` config vs the `nonsteam` config and act accordingly.
 
 
 ---
@@ -102,7 +148,7 @@ You can view the logs inside `output/version/build.log` after running the builde
 | Source file must be supplied to build this version              | Specificed version doesn't have a release on github
 | Fatal Error!                                                    | Something triggered love.errorhandler - check build.log
 
-> Note: If you want to build with 12.0 you'll need to provide the source zips yourself in the `%appdata%/love-build/cache` directory, you can download the builds from the [latest successful workflow action](https://github.com/love2d/love/actions), as the main branch on Github is on version 12. I would recommend building with 11.5 first to see the expected files in your cache.
+> Note: If you want to build with 12.0 you'll need to provide the source zips yourself in the `%appdata%/love-build/cache` directory, you can download the builds from the [latest successful workflow action](https://github.com/love2d/love/actions), as the main branch on Github is on version 12. I would recommend building with 11.5 first to see the expected files in your cache, and check the actual contents of the zips due to Github Workflow double-zipping artifacts.
 
 
 ---

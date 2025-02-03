@@ -28,6 +28,10 @@ return {
   opts = {},
   logs = {},
   hooks = {},
+  configs = 1,
+  config = 1,
+  config_name = '',
+  cache = '',
   quit = false,
   queue = '',
   update_time = 0,
@@ -99,6 +103,11 @@ return {
     if opts == nil or type(opts) ~= 'table' then
       return love.build.err('specified build.lua does not return anything')
     end
+
+    if opts[1] ~= nil and type(opts[1]) == 'table' then
+      love.build.configs = #opts
+      opts = opts[love.build.config]
+    end
   
     -- set options global using config
     love.build.log('setting options')
@@ -106,6 +115,7 @@ return {
     love.build.opts.developer = opts.developer or 'love2d'
     love.build.opts.version = opts.version or '1.0.0'
     love.build.opts.output = nil
+    love.build.opts.config = opts.config or ''
     if opts.output ~= nil then
       love.build.opts.output = love.build.path .. '/' .. opts.output
     end
@@ -139,7 +149,7 @@ return {
     -- lib entries are also ignored
     love.build.opts.libs = opts.libs or {}
     for key, value in pairs(love.build.opts.libs) do
-      if key == 'windows' or key == 'macos' or key == 'linux' or key == 'all' then
+      if key == 'windows' or key == 'macos' or key == 'linux' or key == 'steamdeck' or key == 'all' then
         for l=1,#value do
           local filename = value[l]
           if filename:find("/[^/]*$") ~= nil then
@@ -167,6 +177,10 @@ return {
     end
 
     love.build.folder = string.lower(love.build.opts.name) .. '_' .. love.build.opts.version
+    if love.build.opts.config ~= '' then
+      love.build.folder = love.build.folder .. '_' .. love.build.opts.config
+      love.build.config_name = ' (' .. love.build.opts.config .. ')'
+    end
     love.build.folder = string.gsub(love.build.folder, ' ', '_')
 
     -- run preprocess if any 
@@ -189,51 +203,73 @@ return {
   -- @desc - zip up the project to make the .love file
   -- @return {nil}
   makeLovefile = function ()
-    love.build.log('making lovefile')
-    local start_time = love.timer.getTime()
-
+  
     -- setup paths
     local opts = love.build.opts
     local output = 'output/' .. love.build.folder
     local lovefile = output .. '/' .. opts.name .. '.love'
 
-    -- create version folder in temp output if doesn't exist
-    love.filesystem.createDirectory(output)
-
-    -- remove existing .lovefile if any
-    love.filesystem.remove(lovefile)
-
-    -- zip mounted project directory into a .love file in app data
-    love.build.log('creating lovefile from: "' .. love.build.path .. '"')
-    love.build.log('ignoring: "' .. table.concat(opts.ignore, ',') .. '"')
-
-    -- compress specific files/folders manually
-    local zip = love.zip:newZip(false)
-    zip:addFolder('project', opts.ignore) -- directory contents with ignore list
-    local compress, err = zip:finish(lovefile)
-    if compress ~= true then
-      return love.build.err('failed to create lovefile: "' .. err .. '"')
+    -- if doing multiple configs then dont bother making a love for each one!
+    local need_love = true
+    if love.build.configs > 1 and love.build.config > 1 then
+      need_love = false
     end
 
-    -- check we made a lovefile
-    local love_data = love.build.readData(lovefile)
-    if love_data == nil then
-      return love.build.err('failed to create .lovefile')
-    end
+    if need_love then
+      love.build.log('making lovefile')
+      local start_time = love.timer.getTime()
+  
+      -- create version folder in temp output if doesn't exist
+      love.filesystem.createDirectory(output)
+  
+      -- remove existing .lovefile if any
+      love.filesystem.remove(lovefile)
+  
+      -- zip mounted project directory into a .love file in app data
+      love.build.log('creating lovefile from: "' .. love.build.path .. '"')
+      love.build.log('ignoring: "' .. table.concat(opts.ignore, ',') .. '"')
+  
+      -- compress specific files/folders manually
+      local zip = love.zip:newZip(false)
+      zip:addFolder('project', opts.ignore) -- directory contents with ignore list
+      local compress, err = zip:finish(lovefile)
+      if compress ~= true then
+        return love.build.err('failed to create lovefile: "' .. err .. '"')
+      end
+  
+      -- check we made a lovefile
+      local love_data = love.build.readData(lovefile)
+      if love_data == nil then
+        return love.build.err('failed to create .lovefile')
+      end
 
-    love.build.log('created "' .. lovefile .. '"')
-    love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
+      love.build.cache = output
+  
+      love.build.log('created "' .. lovefile .. '"')
+      love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
+
+    else
+      love.build.log('already cached "' .. lovefile .. '"')
+      love.filesystem.createDirectory(output)
+  
+      -- remove existing .lovefile if any
+      love.filesystem.remove(lovefile)
+      love.build.copyFile(love.build.cache .. '/' .. opts.name .. '.love', output .. '/' .. opts.name .. '.love')
+    end
 
     -- what we make next depends on settings
     if love.build.targets:find('windows') then
       love.build.queue = 'makeWindows'
-      love.build.status = 'Building Windows...'
+      love.build.status = 'Building Windows...' .. love.build.config_name
     elseif love.build.targets:find('macos') then
       love.build.queue = 'makeMacOS'
-      love.build.status = 'Building MacOS...'
+      love.build.status = 'Building MacOS...' .. love.build.config_name
     elseif love.build.targets:find('linux') then
       love.build.queue = 'makeLinux'
-      love.build.status = 'Building Linux...'
+      love.build.status = 'Building Linux...' .. love.build.config_name
+    elseif love.build.targets:find('steamdeck') then
+      love.build.queue = 'makeSteamdeck'
+      love.build.status = 'Building Steamdeck...' .. love.build.config_name
     else
       return love.build.err('no target platforms specified')
     end
@@ -330,6 +366,16 @@ return {
       end
     end
 
+    -- make config file directly in source
+    local config_file = 'return {\n' ..
+      "\tname = '" .. love.build.opts.name .. "',\n" ..
+      "\tconfig = '" .. love.build.opts.config .. "',\n" ..
+      "\tplatform = '" .. wbit .. "',\n" ..
+      "\tversion = '" .. love.build.opts.version .. "',\n" ..
+      "\tlove = '" .. love.build.opts.love .. "'\n" ..
+      '}'
+    love.filesystem.write('temp/' .. srcdir .. '/' .. 'lbconfig.lua', config_file)
+
     -- zip file output, ignoring some files
     local zip = love.zip:newZip(false)
     local compress, err = zip:compress('temp/' .. srcdir, zipfile, {
@@ -347,10 +393,13 @@ return {
       love.build.makeWindows(true)
     elseif love.build.targets:find('macos') then
       love.build.queue = 'makeMacOS'
-      love.build.status = 'Building MacOS...'
+      love.build.status = 'Building MacOS...' .. love.build.config_name
     elseif love.build.targets:find('linux') then
       love.build.queue = 'makeLinux'
-      love.build.status = 'Building Linux...'
+      love.build.status = 'Building Linux...' .. love.build.config_name
+    elseif love.build.targets:find('steamdeck') then
+      love.build.queue = 'makeSteamdeck'
+      love.build.status = 'Building Steamdeck...' .. love.build.config_name
     else
       love.build.queue = 'finishBuild'
       love.build.status = 'Finishing Up...'
@@ -455,7 +504,8 @@ return {
           if filename:find("/[^/]*$") ~= nil then
             filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
           end
-          love.build.log('adding lib: "' .. value[l] .. '" > "Contents/Resources/' .. filename .. '"')
+          love.build.log('adding lib: "' .. value[l] .. '" > "Contents/MacOS/' .. filename .. '"')
+          love.build.copyFile('project/' .. value[l], appcontents .. '/MacOS/' .. filename)
           love.build.copyFile('project/' .. value[l], appcontents .. '/Resources/' .. filename)
         end
       elseif key ~= 'windows' and key ~= 'linux' then
@@ -463,10 +513,22 @@ return {
         if filename:find("/[^/]*$") ~= nil then
           filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
         end
-        love.build.log('adding lib: "' .. value .. '" > "Contents/Resources/' .. filename .. '"')
+        love.build.log('adding lib: "' .. value .. '" > "Contents/MacOS/' .. filename .. '"')
+        love.build.copyFile('project/' .. value, appcontents .. '/MacOS/' .. filename)
         love.build.copyFile('project/' .. value, appcontents .. '/Resources/' .. filename)
       end
     end
+
+    -- make config file directly in source
+    local config_file = 'return {\n' ..
+      "\tname = '" .. love.build.opts.name .. "',\n" ..
+      "\tconfig = '" .. love.build.opts.config .. "',\n" ..
+      "\tplatform = '" .. 'macos' .. "',\n" ..
+      "\tversion = '" .. love.build.opts.version .. "',\n" ..
+      "\tlove = '" .. love.build.opts.love .. "'\n" ..
+      '}'
+    love.filesystem.write(appcontents .. '/MacOS/' .. 'lbconfig.lua', config_file)
+    love.filesystem.write(appcontents .. '/Resources/' .. 'lbconfig.lua', config_file)
 
     -- zip file output
     local zip = love.zip:newZip(false, true)
@@ -481,7 +543,10 @@ return {
     -- what we make next depends on settings
     if love.build.targets:find('linux') then
       love.build.queue = 'makeLinux'
-      love.build.status = 'Building Linux...'
+      love.build.status = 'Building Linux...' .. love.build.config_name
+    elseif love.build.targets:find('steamdeck') then
+      love.build.queue = 'makeSteamdeck'
+      love.build.status = 'Building Steamdeck...' .. love.build.config_name
     else
       love.build.queue = 'finishBuild'
       love.build.status = 'Finishing Up...'
@@ -491,7 +556,7 @@ return {
 
 
   -- @method - love.build.makeLinux()
-  -- @desc - build the linux.AppImage for the project
+  -- @desc - build the standard linux build for the project
   -- @return {nil}
   makeLinux = function()
     love.build.log('building linux')
@@ -610,6 +675,16 @@ return {
       end
     end
 
+    -- make config file directly in source
+    local config_file = 'return {\n' ..
+      "\tname = '" .. love.build.opts.name .. "',\n" ..
+      "\tconfig = '" .. love.build.opts.config .. "',\n" ..
+      "\tplatform = '" .. 'linux' .. "',\n" ..
+      "\tversion = '" .. love.build.opts.version .. "',\n" ..
+      "\tlove = '" .. love.build.opts.love .. "'\n" ..
+      '}'
+    love.filesystem.write('temp/' .. srcdir .. '/squashfs-root/lib/' .. 'lbconfig.lua', config_file)
+
     -- remove squashfs-root/love.svg
     love.filesystem.remove('temp/' .. srcdir .. '/squashfs-root/love.svg')
 
@@ -627,6 +702,167 @@ return {
     end
 
     love.build.log('built linux successfully')
+    love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
+
+    -- check last type
+    if love.build.targets:find('steamdeck') then
+      love.build.queue = 'makeSteamdeck'
+      love.build.status = 'Building Steamdeck...' .. love.build.config_name
+    else
+      love.build.queue = 'finishBuild'
+      love.build.status = 'Finishing Up...'
+    end
+
+  end,
+
+
+  -- @method - love.build.makeSteamdeck()
+  -- @desc - build the linux steamdeck build for the project
+  -- @return {nil}
+  makeSteamdeck = function()
+    love.build.log('building steamdeck')
+    local start_time = love.timer.getTime()
+
+    -- get source file
+    local srcfile = 'love-' .. love.build.opts.love .. '-x86_64.AppImage'
+    love.build.log('getting love src for: "' .. srcfile .. '"')
+    local getsrc = love.build.downloadLove('linux')
+    if getsrc == false then
+      return love.build.err('failed to get love src')
+    end
+
+    -- get paths
+    local opts = love.build.opts
+    local output = 'output/' .. love.build.folder
+    local lovefile = output .. '/' .. opts.name .. '.love'
+    local zipfile = output .. '/' .. opts.name .. '-steamdeck.zip'
+    local srcdir = 'love-' .. love.build.opts.love .. '-steamdeck'
+
+    -- cleanup existing if any
+    love.filesystem.remove(zipfile)
+
+    -- copy src to /temp
+    love.filesystem.createDirectory('temp/' .. srcdir)
+    local copy = love.build.copyFile('cache/' .. srcfile, 'temp/' .. srcdir .. '/' .. srcfile)
+    if copy == false then
+      return love.build.err('failed to copy src from /cache to /temp')
+    end
+
+    -- strip squashfs from appimage and unsquash to srcdir
+    local squash = love.squashfs:newSquashFS(true)
+    squash:_stripAppImage('temp/' .. srcdir .. '/' .. srcfile, 'temp/' .. srcdir .. '/squashdata')
+    local decompressed, err = squash:decompress('temp/' .. srcdir .. '/squashdata', 'temp/' .. srcdir .. '/squashfs-root')
+    if decompressed == false then
+      return love.build.err('failed to decompress appimage squashfs: "' .. decompressed .. '"')
+    end
+
+    -- fuse game
+    love.build.log('fuse binary')
+    love.build.concatFiles(
+      {'temp/' .. srcdir .. '/squashfs-root/bin/love', lovefile},
+      'temp/' .. srcdir .. '/squashfs-root/bin/' .. opts.name
+    )
+    love.filesystem.remove('temp/' .. srcdir .. '/squashfs-root/bin/love')
+
+    -- create desktop file and move to temp/squashfs-root/love.desktop
+    love.build.log('writing love.desktop')
+    local desktopfile = '[Desktop Entry]\n'
+    desktopfile = desktopfile .. 'Name=' .. love.build.opts.name .. '\n'
+    desktopfile = desktopfile .. 'Comment=Built with LÖVE!\n'
+    desktopfile = desktopfile .. 'MimeType=application/x-love-game;\n'
+    desktopfile = desktopfile .. 'Exec=' .. love.build.opts.name ..' %f\n'
+    desktopfile = desktopfile .. 'Type=Application\n'
+    desktopfile = desktopfile .. 'Categories=Development;Game;\n'
+    desktopfile = desktopfile .. 'Terminal=false\n'
+    desktopfile = desktopfile .. 'Icon=icon\n'
+    desktopfile = desktopfile .. 'NoDisplay=true\n'
+    local desktopf = love.filesystem.openFile('temp/' .. srcdir .. '/squashfs-root/love.desktop', 'w')
+    desktopf:write(desktopfile)
+    desktopf:close()
+
+    -- copy game icon to temp/squashfs-root/icon.png
+    if love.build.opts.icon ~= nil then
+      local i = love.icon:newIcon('project/' .. love.build.opts.icon)
+      local img = love.graphics.newImage(i.img)
+      local iconf = love.filesystem.openFile('temp/' .. srcdir .. '/squashfs-root/icon.png', 'w')
+      iconf:write(i:_resize(img, 256):getString())
+      iconf:close()
+      local icond = love.filesystem.openFile('temp/' .. srcdir .. '/squashfs-root/.DirIcon', 'w')
+      icond:write(i:_resize(img, 256):getString())
+      icond:close()
+    end
+    
+    -- create AppRun file and move to temp/squashfs-root/AppRun
+    local apprunfile = '#!/bin/sh\n'
+    apprunfile = apprunfile .. 'if [ -z "$APPDIR" ]; then\n'
+    apprunfile = apprunfile .. '  APPDIR="$(dirname "$(readlink -f "$0")")"\n'
+    apprunfile = apprunfile .. 'fi\n'
+    apprunfile = apprunfile .. 'export LD_LIBRARY_PATH="$APPDIR/lib/:$LD_LIBRARY_PATH"\n'
+    apprunfile = apprunfile .. 'if [ -z "$XDG_DATA_DIRS" ]; then #unset or empty\n'
+    apprunfile = apprunfile .. '    XDG_DATA_DIRS="/usr/local/share/:/usr/share/"\n'
+    apprunfile = apprunfile .. 'fi\n'
+    apprunfile = apprunfile .. 'export XDG_DATA_DIRS="$APPDIR/share/:$XDG_DATA_DIRS"\n'
+    apprunfile = apprunfile .. 'if [ -z "$LUA_PATH" ]; then\n'
+    apprunfile = apprunfile .. '    LUA_PATH=";"\n'
+    apprunfile = apprunfile .. 'fi\n'
+    apprunfile = apprunfile .. 'export LUA_PATH="$APPDIR/share/luajit-2.1.0-beta3/?.lua;$APPDIR/share/lua/5.1/?.lua;$LUA_PATH"\n'
+    apprunfile = apprunfile .. 'if [ -z "$LUA_CPATH" ]; then\n'
+    apprunfile = apprunfile .. '    LUA_CPATH=";"\n'
+    apprunfile = apprunfile .. 'fi\n'
+    apprunfile = apprunfile .. 'export LUA_CPATH="$APPDIR/lib/?.so;$APPDIR/lib/lua/5.1/?.so;$LUA_CPATH"\n'
+    apprunfile = apprunfile .. 'exec "$APPDIR/bin/' .. love.build.opts.name .. '" "$@"\n'
+    local apprun = love.filesystem.openFile('temp/' .. srcdir .. '/squashfs-root/AppRun', 'w')
+    apprun:write(apprunfile)
+    apprun:close()
+
+    -- copy any libs specified into the squashfs-root/lib folder
+    for key, value in pairs(opts.libs) do
+      if key == 'steamdeck' or key == 'all' then
+        for l=1,#value do
+          local filename = value[l]
+          if filename:find("/[^/]*$") ~= nil then
+            filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+          end
+          love.build.log('adding lib: "' .. value[l] .. '" > "lib/' .. filename .. '"')
+          love.build.copyFile('project/' .. value[l], 'temp/' .. srcdir .. '/squashfs-root/lib/' .. filename)
+        end
+      elseif key ~= 'macos' and key ~= 'windows' and key ~= 'linux' then
+        local filename = value
+        if filename:find("/[^/]*$") ~= nil then
+          filename = filename:sub(filename:find("/[^/]*$") + 1, #filename)
+        end
+        love.build.log('adding lib: "' .. value .. '" > "lib/' .. filename .. '"')
+        love.build.copyFile('project/' .. value, 'temp/' .. srcdir .. '/squashfs-root/lib/' .. filename)
+      end
+    end
+
+    -- make config file directly in source
+    local config_file = 'return {\n' ..
+      "\tname = '" .. love.build.opts.name .. "',\n" ..
+      "\tconfig = '" .. love.build.opts.config .. "',\n" ..
+      "\tplatform = '" .. 'steamdeck' .. "',\n" ..
+      "\tversion = '" .. love.build.opts.version .. "',\n" ..
+      "\tlove = '" .. love.build.opts.love .. "'\n" ..
+      '}'
+    love.filesystem.write('temp/' .. srcdir .. '/squashfs-root/lib/' .. 'lbconfig.lua', config_file)
+
+    -- remove squashfs-root/love.svg
+    love.filesystem.remove('temp/' .. srcdir .. '/squashfs-root/love.svg')
+
+    -- @NOTE shouldnt need to chmod the binary or apprun here as love-squashfs should handle setting that
+    -- do the same as we do for love-zip, no extension, try marking 0755
+
+    -- @TODO repackage as squashfs + combine with runtime-fuse2 when done 
+    -- repackage binary, then concatFiles with the runtime-fuse2
+
+    -- for now just zip up contents as the linux build
+    local zip = love.zip:newZip(false, true)
+    local compress, err = zip:compress('temp/' .. srcdir .. '/squashfs-root', zipfile, {}, squash.symlinks)
+    if compress == false then
+      return love.build.err('failed to zip up linux output: "' .. err .. '"')
+    end
+
+    love.build.log('built steamdeck successfully')
     love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
 
     -- all done, finish up
@@ -660,11 +896,13 @@ return {
         local win32 = '/' .. love.build.opts.name .. '-windows32.zip'
         local win64 = '/' .. love.build.opts.name .. '-windows.zip'
         local linux = '/' .. love.build.opts.name .. '-linux.zip'
+        local steamdeck = '/' .. love.build.opts.name .. '-steamdeck.zip'
         love.build.copyFile(source .. lovefile, output .. lovefile)
         if love.build.targets:find('macos') then love.build.copyFile(source .. macos, output .. macos) end
         if love.build.targets:find('windows') and love.build.opts.use32bit then love.build.copyFile(source .. win32, output .. win32) end
         if love.build.targets:find('windows') then love.build.copyFile(source .. win64, output .. win64) end
         if love.build.targets:find('linux') then love.build.copyFile(source .. linux, output .. linux) end
+        if love.build.targets:find('steamdeck') then love.build.copyFile(source .. steamdeck, output .. steamdeck) end
       end
     end
 
@@ -682,19 +920,27 @@ return {
     love.build.log('build finished in ' .. love.build.formatTime(time))
     love.build.dumpLogs()
 
-    -- open path to output
-    if mounted == true then
-      love.build.copyFile('output/' .. love.build.folder .. '/build.log', 'poutput/' .. love.build.opts.version .. '/build.log')
-      local ppath = love.build.opts.output .. '/' .. love.build.opts.version
-      local try = love.system.openURL('file://' .. ppath)
-      if try == false then print('couldnt open output folder, relative path used instead of fullpath: "' .. ppath .. '"') end
+    -- check if more configs?
+    if love.build.configs > love.build.config then
+      love.build.config = love.build.config + 1
+      love.build.readConfig()
     else
-      love.system.openURL('file://' .. love.filesystem.getSaveDirectory() .. '/output/' .. love.build.folder)
-    end
 
-    -- quit if ran from terminal
-    if love.build.quit == true then
-      love.event.quit(0)
+      -- open path to output
+      if mounted == true then
+        love.build.copyFile('output/' .. love.build.folder .. '/build.log', 'poutput/' .. love.build.opts.version .. '/build.log')
+        local ppath = love.build.opts.output .. '/' .. love.build.opts.version
+        local try = love.system.openURL('file://' .. ppath)
+        if try == false then print('couldnt open output folder, relative path used instead of fullpath: "' .. ppath .. '"') end
+      else
+        love.system.openURL('file://' .. love.filesystem.getSaveDirectory() .. '/output/' .. love.build.folder)
+      end
+
+      -- quit if ran from terminal
+      if love.build.quit == true then
+        love.event.quit(0)
+      end
+
     end
 
   end,
