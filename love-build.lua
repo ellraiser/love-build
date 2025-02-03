@@ -685,7 +685,7 @@ return {
       "\tversion = '" .. love.build.opts.version .. "',\n" ..
       "\tlove = '" .. love.build.opts.love .. "'\n" ..
       '}'
-    love.filesystem.write('temp/' .. srcdir .. '/squashfs-root/lib/' .. 'lbconfig.lua', config_file)
+    love.filesystem.write('temp/' .. srcdir .. '/squashfs-root/bin/' .. 'lbconfig.lua', config_file)
 
     -- remove squashfs-root/love.svg
     love.filesystem.remove('temp/' .. srcdir .. '/squashfs-root/love.svg')
@@ -846,7 +846,7 @@ return {
       "\tversion = '" .. love.build.opts.version .. "',\n" ..
       "\tlove = '" .. love.build.opts.love .. "'\n" ..
       '}'
-    love.filesystem.write('temp/' .. srcdir .. '/squashfs-root/lib/' .. 'lbconfig.lua', config_file)
+    love.filesystem.write('temp/' .. srcdir .. '/squashfs-root/bin/' .. 'lbconfig.lua', config_file)
 
     -- remove squashfs-root/love.svg
     love.filesystem.remove('temp/' .. srcdir .. '/squashfs-root/love.svg')
