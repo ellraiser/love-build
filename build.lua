@@ -8,5 +8,6 @@ return {
   ignore = {
     'dist', 'example-project',
     'love12', 'love12.zip', 'love-macos', -- github workflow
-  }
+  },
+  platforms = {'windows', 'macos', 'linux'}
 }
