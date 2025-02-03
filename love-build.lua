@@ -893,7 +893,7 @@ return {
         local source = 'output/' .. love.build.folder
         local output = 'poutput/' .. love.build.opts.version
         if love.build.config_folder ~= '' then
-          output = '/' .. love.build.config_folder
+          output = output .. '/' .. love.build.config_folder
         end
         love.filesystem.createDirectory(output)
         local lovefile = '/' .. love.build.opts.name .. '.love'
