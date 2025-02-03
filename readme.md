@@ -76,10 +76,10 @@ These will each be put in their own `.zip` file inside the `output/version` fold
 | Windows     |    ✓    |   ✓   |   ✓^  |
 | MacOS       |    ✓    |   ✓   |   ✓^  |
 | Linux       |    ✓    |   ✓   |   ✓^  |
-| Steamdeck   |    ✓    |   ✓   |   ✓*  |
+| Steamdeck   |    ✓    |   ✓   |   ✓$  |
 
-^ Linux builds are currently a 'basic' export, not an AppImage - chmod+run the `AppRun` file to run
-* Steamdeck builds are just a linux export, seperated so you can have a different build/config for the `Steamdeck` depot that Steam now offers developers
+^ Linux builds are currently a 'basic' export, not an AppImage - chmod+run the `AppRun` file to run  
+$ Steamdeck builds are just a linux export, seperated so you can have a different build/config for the `Steamdeck` depot that Steam now offers developers
 
 > Note: MacOS builds are _not_ signed so are not suitable for AppStore distribution
 
