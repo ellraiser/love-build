@@ -334,9 +334,14 @@ return {
       -- set the exe icon itself
       love.build.log('setting game metadata')
       local modified_exe = love.exedit.updateIcon('temp/' .. srcdir .. '/love.exe', 'project/' .. opts.icon)
-      local srcexe = love.filesystem.openFile('temp/' .. srcdir .. '/love.exe', 'w')
-      srcexe:write(modified_exe)
-      srcexe:close()
+      if modified_exe == nil then
+        love.build.log('failed to update icon!')
+      else
+        love.build.log('replacing modified contents')
+        local srcexe = love.filesystem.openFile('temp/' .. srcdir .. '/love.exe', 'w')
+        srcexe:write(modified_exe)
+        srcexe:close()
+      end
     end
 
 
@@ -1089,6 +1094,7 @@ return {
           'to manually download the source and add it to ' ..
           love.filesystem.getSaveDirectory() .. '/cache')
         love.build.err('source file must be supplied to build with 12.0')
+        love.system.openURL('file://' .. love.filesystem.getSaveDirectory() .. '/cache')
       end
 
       return false

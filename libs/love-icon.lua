@@ -72,13 +72,13 @@ love.icon = {
     ]]
   _resize = function(self, img, size)
     local png = love.graphics.newCanvas(size, size, {
-      dpiscale = 1
+      dpiscale = 1,
+      format = 'rgba8'
     })
     png:renderTo(function()
-      love.graphics.clear(0, 0, 0, 1)
       love.graphics.draw(img, 0, 0, 0, size/img:getWidth(), size/img:getHeight())
     end)
-    return png:newImageData():encode('png')
+    return love.graphics.readbackTexture(png):encode('png')
   end,
 
 
@@ -96,7 +96,7 @@ love.icon = {
     if format == 'ico' then
       -- get image from data
       local img = love.graphics.newImage(self.img)
-      local png256 = self:_resize(img, 256)
+      local png128 = self:_resize(img, 128)
       -- ICONDIR header
       local header = ''
       header = header .. self:_intToBytes(0, 2) -- Reserved. Must always be 0. 
@@ -104,16 +104,16 @@ love.icon = {
       header = header .. self:_intToBytes(1, 2) -- Specifies number of images in the file. 
       -- ICONDIRENTRY
       local entries = ''
-      entries = entries .. self:_intToBytes(0, 1) -- Specifies image width in pixels. Number between 0 and 255, 0 is 256
-      entries = entries .. self:_intToBytes(0, 1) -- Specifies image height in pixels. Number between 0 and 255, 0 is 256
+      entries = entries .. self:_intToBytes(128, 1) -- Specifies image width in pixels. Number between 0 and 255, 0 is 256
+      entries = entries .. self:_intToBytes(128, 1) -- Specifies image height in pixels. Number between 0 and 255, 0 is 256
       entries = entries .. self:_intToBytes(255, 1) -- Specifies number of colors in the color palette
       entries = entries .. self:_intToBytes(0, 1) -- Reserved. Should be 0.
       entries = entries .. self:_intToBytes(0, 2) -- Specifies color planes. Should be 0 or 1
       entries = entries .. self:_intToBytes(8, 2) -- Specifies bits per pixel. https://learn.microsoft.com/previous-versions/windows/it-pro/windows-2000-server/cc938238(v=technet.10)
-      entries = entries .. self:_intToBytes(png256:getSize(), 4) -- Specifies the size of the image's data in bytes 
+      entries = entries .. self:_intToBytes(png128:getSize(), 4) -- Specifies the size of the image's data in bytes 
       entries = entries .. self:_intToBytes(6 + 16, 4) -- Specifies the offset of PNG data from the beginning of the ICO file
       -- write ico file
-      return love.filesystem.write(output, header .. entries .. png256:getString())
+      return love.filesystem.write(output, header .. entries .. png128:getString())
 
     -- for icns the format is a lot simpler
     -- https://en.wikipedia.org/wiki/Apple_Icon_Image_format

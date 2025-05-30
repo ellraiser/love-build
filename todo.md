@@ -1,12 +1,8 @@
 # Future Stuff
-[misc]
-- wildcards (*) for ignore/lib paths
-- put module stuff (extract/compress etc) into threads to prevent hanging on large files?
-- create github workflow action for people to use
-
 [linux]
 - add `love-squashfs` :compress() for repackaging linux as an AppImage (chunk cap check)
-  + still keep the 'basic' output for linux, i.e. both -linux AND -AppImage ZIPs
+  + still keep the 'basic' output for linux, i.e. both -linux AND -AppImage ZIPs 
+  + appimage issue max chunk size check in case we store bigger blocks?
 
 [windows]
 - file version doesnt seem to update correctly all the time, need to update the FIXED_FILE_INFO as well I think
@@ -17,7 +13,7 @@
 
 # Things Not Being Added
 - any external libraries or dependencies, some stuff might be quicker with a 
-  seperate app but the point is to make a self-contained pure-lovelua solution
+  seperate app but the point is to make a self-contained pure love/lua solution
 
 - an export option for lovejs - if there ends up being official support for it 
   then I might consider it but I want to keep this to platforms that are 

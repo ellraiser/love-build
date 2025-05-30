@@ -23,7 +23,8 @@ love.exedit = {
     print('love.exedit > modiying exe file', exe_file)
 
     -- read the data from the file and clone it for later
-    local data = love.filesystem.read(exe_file)
+    local data, err = love.filesystem.read(exe_file)
+    print(data, err)
     local new_data = data .. ''
 
     -- if exe file doesnt start with PE it prob has a dos stub
@@ -387,7 +388,12 @@ love.exedit = {
                 local newdata = ico_icon:_resize(ico_img, ico_sizes[l2]):getString()
                 local padding = lvl3_entry.DataSize - #newdata
                 if #newdata > lvl3_entry.DataSize then
-                  print('love.exedit >       WARN: icon png bigger than available size', lvl3_entry.DataSize, #newdata)
+                  print('love.exedit >       WARN: icon png bigger, reducing', ico_sizes[l2], lvl3_entry.DataSize, #newdata)
+                  newdata = ico_icon:_resize(ico_img, ico_sizes[l2]*0.75):getString()
+                  padding = lvl3_entry.DataSize - #newdata
+                end
+                if #newdata > lvl3_entry.DataSize then
+                  print('love.exedit >       WARN: icon png bigger than available size', ico_sizes[l2], lvl3_entry.DataSize, #newdata)
                 end
                 if padding < 0 then
                   newdata = newdata:sub(1, lvl3_entry.DataSize)
