@@ -293,8 +293,8 @@ return {
     love.build.log('building windows ' .. wbit)
 
     -- get source file
-    local srcfile = 'love-' .. love.build.opts.love .. '-' .. wbit .. '.zip'
-    love.build.log('getting love src for: "' .. srcfile .. '"')
+    local srcdir = 'love-' .. love.build.opts.love .. '-' .. wbit
+    love.build.log('getting love src for: "' .. srcdir .. '"')
     local getsrc = love.build.downloadLove(wbit)
     if getsrc == false then
       return love.build.err('failed to get love src')
@@ -308,22 +308,30 @@ return {
     if build32 == true then
       zipfile = output .. '/' .. opts.name .. '-windows32.zip'
     end
-    local srcdir = 'love-' .. love.build.opts.love .. '-' .. wbit
 
     -- cleanup existing if any
     love.filesystem.remove(zipfile)
 
-    -- copy src to /temp
-    local copy = love.build.copyFile('cache/' .. srcfile, 'temp/' .. srcfile)
-    if copy == false then
-      return love.build.err('failed to copy src from /cache to /temp')
+    -- extract source if not already extracted
+    if not love.filesystem.exists('cache/' .. srcdir, "directory") then
+      local srcfile = srcdir .. '.zip'
+
+      local unzip = love.zip:newZip()
+      local decompress, err = unzip:decompress('cache/' .. srcfile, 'cache/')
+      if decompress == false then
+        return love.build.err('failed to unzip src: "' .. err .. '"')
+      end
     end
 
-    -- extract source
-    local unzip = love.zip:newZip()
-    local decompress, err = unzip:decompress('temp/' .. srcfile, 'temp/')
-    if decompress == false then
-      return love.build.err('failed to unzip src: "' .. err .. '"')
+    -- copy source from cache to temp
+    love.filesystem.createDirectory('temp/' .. srcdir)
+    for i, file in ipairs(love.filesystem.getDirectoryItems('cache/' .. srcdir)) do
+      local src = 'cache/' .. srcdir .. '/' .. file
+      local destination = 'temp/' .. srcdir .. '/' .. file
+      local copy = love.build.copyFile(src, destination)
+      if copy == false then
+        return love.build.err('failed to copy src from /cache to /temp')
+      end
     end
 
     -- add game icon
