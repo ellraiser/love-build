@@ -426,11 +426,14 @@ return {
     local start_time = love.timer.getTime()
     
     -- get source file
-    local srcfile = 'love-' .. love.build.opts.love .. '-macos.zip'
+    local srcdir = 'love-' .. love.build.opts.love .. '-macos'
+    local srcfile = srcdir .. '.zip'
     love.build.log('getting love src for: "' .. srcfile .. '"')
-    local getsrc = love.build.downloadLove('macos')
-    if getsrc == false then
-      return love.build.err('failed to get love src')
+    if not love.filesystem.exists("cache/" .. srcdir, "directory") then
+      local getsrc = love.build.downloadLove('macos')
+      if getsrc == false then
+        return love.build.err('failed to get love src')
+      end
     end
 
     -- get paths
@@ -438,10 +441,19 @@ return {
     local output = 'output/' .. love.build.folder
     local lovefile = output .. '/' .. opts.name .. '.love'
     local zipfile = output .. '/' .. opts.name .. '-macos.zip'
-    local srcdir = 'love-' .. love.build.opts.love .. '-macos'
 
     -- cleanup existing if any
     love.filesystem.remove(zipfile)
+
+    if love.filesystem.exists("cache/" .. srcdir, "directory") then
+      if love.filesystem.exists("cache/" .. srcdir .. ".zip", "file") then
+        -- the only way to make sure the existing zip is decompressable is to replace it with our own
+        love.filesystem.remove("cache/" .. srcdir .. ".zip")
+      end
+      -- by compressing with love.zip instead of the system zip, the decompression crash is bypassed as love.zip works fine with its own output
+      local zip = love.zip:newZip(false, false)
+      zip:compress("cache/" .. srcdir, "cache/" .. srcdir .. ".zip")
+    end
 
     -- copy src to /temp
     local copy = love.build.copyFile('cache/' .. srcfile, 'temp/' .. srcfile)
@@ -589,20 +601,28 @@ return {
 
     -- cleanup existing if any
     love.filesystem.remove(zipfile)
-
-    -- copy src to /temp
     love.filesystem.createDirectory('temp/' .. srcdir)
-    local copy = love.build.copyFile('cache/' .. srcfile, 'temp/' .. srcdir .. '/' .. srcfile)
-    if copy == false then
-      return love.build.err('failed to copy src from /cache to /temp')
-    end
 
-    -- strip squashfs from appimage and unsquash to srcdir
     local squash = love.squashfs:newSquashFS(true)
-    squash:_stripAppImage('temp/' .. srcdir .. '/' .. srcfile, 'temp/' .. srcdir .. '/squashdata')
-    local decompressed, err = squash:decompress('temp/' .. srcdir .. '/squashdata', 'temp/' .. srcdir .. '/squashfs-root')
-    if decompressed == false then
-      return love.build.err('failed to decompress appimage squashfs: "' .. decompressed .. '"')
+
+    if love.filesystem.exists('cache/' .. srcdir, 'directory') then
+      local copied = love.build.recursiveCopy('cache/' .. srcdir, 'temp/' .. srcdir)
+      if not copied then
+        return love.build.err('failed to copy squashfs-root from /cache to /temp')
+      end
+    else
+      -- copy src to /temp
+      local copy = love.build.copyFile('cache/' .. srcfile, 'temp/' .. srcdir .. '/' .. srcfile)
+      if copy == false then
+        return love.build.err('failed to copy src from /cache to /temp')
+      end
+
+      -- strip squashfs from appimage and unsquash to srcdir
+      squash:_stripAppImage('temp/' .. srcdir .. '/' .. srcfile, 'temp/' .. srcdir .. '/squashdata')
+      local decompressed, err = squash:decompress('temp/' .. srcdir .. '/squashdata', 'temp/' .. srcdir .. '/squashfs-root')
+      if not decompressed then
+        return love.build.err('failed to decompress appimage squashfs: "' .. err .. '"')
+      end
     end
 
     -- fuse game
@@ -996,6 +1016,29 @@ return {
     local write = to_file:write(from_data)
     to_file:close()
     return write
+  end,
+
+  recursiveCopy = function(from, to)
+    local lfs = love.filesystem
+    local names = lfs.getDirectoryItems(from)
+    for i, name in ipairs(names) do
+      local info = lfs.getInfo(from .. "/" .. name)
+      if info and info.type == "directory" then
+        love.build.recursiveCopy(from .. "/" .. name, to .. "/" .. name)
+      elseif info then
+        local destination_info = lfs.getInfo(to)
+        if not destination_info or destination_info.type ~= "directory" then
+          love.filesystem.createDirectory(to)
+        end  
+        local success = love.build.copyFile(from .. "/" .. name, to .. "/" .. name)
+
+        if not success then
+          return false
+        end
+      end
+    end
+
+    return true
   end,
 
 

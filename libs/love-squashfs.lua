@@ -396,7 +396,7 @@ love.squashfs = {
     local frag_count =  self:_readUInt32(data, 17)
     local compressor =  self:_readUInt16(data, 21)
     if compressor ~= 1 then
-      print('love.squashfs > ERRO: unsupported compression type', compressor)
+      print('love.squashfs > ERROR: unsupported compression type', compressor)
       return nil, 'Error: Unsupported compression type: ' .. tostring(compressor)
     end
     local block_log = self:_readUInt16(data, 23)
