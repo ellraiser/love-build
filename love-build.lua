@@ -191,6 +191,7 @@ return {
       local cmd = 'sh'
       if love.build.os == 'windows' then cmd = 'bash' end
       os.execute(cmd .. ' ' .. love.build.path .. '/' .. love.build.hooks.before_build .. ' ' .. love.build.path)
+      return love.build.err('specified build.lua does not return anything')
     end
 
     love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
