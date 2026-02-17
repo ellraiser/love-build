@@ -14,6 +14,13 @@ if love.window and love.graphics then
     " AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz+#:-'!?.0123456789,/ %()çö<_", 1)
 end
 
+local function executeAndReport(script)
+  local cmd = 'sh'
+  if love.build.os == 'windows' then cmd = 'bash' end
+  local result = os.execute(cmd .. ' ' .. script)
+  return result == true or result == 0
+end
+
 return {
 
   -- setup general love.build properties
@@ -188,10 +195,10 @@ return {
     -- run preprocess if any 
     if love.build.hooks.before_build then
       love.build.log('preprocess: ' .. love.build.path .. '/' .. love.build.hooks.before_build)
-      local cmd = 'sh'
-      if love.build.os == 'windows' then cmd = 'bash' end
-      os.execute(cmd .. ' ' .. love.build.path .. '/' .. love.build.hooks.before_build .. ' ' .. love.build.path)
-      return love.build.err('specified build.lua does not return anything')
+      preSuccess = executeAndReport(love.build.path .. '/' .. love.build.hooks.before_build .. ' ' .. love.build.path)
+      if not preSuccess then
+        return love.build.err('preprocess hooks failed')
+      end
     end
 
     love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
@@ -920,9 +927,10 @@ return {
     -- run postprocess if any 
     if love.build.hooks.after_build then
       love.build.log('postprocess: ' .. love.build.path .. '/' .. love.build.hooks.after_build)
-      local cmd = 'sh'
-      if love.build.os == 'windows' then cmd = 'bash' end
-      os.execute(cmd .. ' ' .. love.build.path .. '/' .. love.build.hooks.after_build .. ' ' .. love.build.path .. ' ' .. love.build.opts.output)
+      local postSuccess = executeAndReport(love.build.path .. '/' .. love.build.hooks.after_build .. ' ' .. love.build.path .. ' ' .. love.build.opts.output)
+      if not postSuccess then
+        return love.build.err('postprocess hooks failed')
+      end
     end
 
     -- finalise build
