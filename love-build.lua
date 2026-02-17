@@ -195,7 +195,7 @@ return {
     -- run preprocess if any 
     if love.build.hooks.before_build then
       love.build.log('preprocess: ' .. love.build.path .. '/' .. love.build.hooks.before_build)
-      preSuccess = executeAndReport(love.build.path .. '/' .. love.build.hooks.before_build .. ' ' .. love.build.path)
+      local preSuccess = executeAndReport(love.build.path .. '/' .. love.build.hooks.before_build .. ' ' .. love.build.path)
       if not preSuccess then
         return love.build.err('preprocess hooks failed')
       end
