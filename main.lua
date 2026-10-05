@@ -1,6 +1,11 @@
 -- load love.build 
 love.build = require('love-build')
 
+-- folder button
+local folder_button = {
+  x = 5, y = 5, w = 100, h = 16, hl = false
+}
+
 -- handle argument on start
 love.load = function(args)
   love.build.log('start')
@@ -43,6 +48,23 @@ love.filedropped = function(file)
   love.build.queue = 'startBuild'
 end
 
+
+-- open folder
+love.mousepressed = function()
+  if folder_button.hl then
+    love.system.openURL('file://' .. love.filesystem.getSaveDirectory() .. '/cache')
+  end
+end
+
+
+-- quit
+love.keypressed = function(k)
+  if k == 'escape' then
+    love.event.quit()
+  end
+end
+
+
 -- run stuff on a timer so we can have a delay for the GUI
 -- we could use coroutines but then we'd lose the error crashes
 love.update = function(dt)
@@ -58,6 +80,10 @@ love.update = function(dt)
       end
     end
   end
+  local mx = love.mouse.getX()/2
+  local my = love.mouse.getY()/2
+  folder_button.hl =  mx >= folder_button.x and mx <= folder_button.x+folder_button.w
+    and my >= folder_button.y and my <= folder_button.y+folder_button.h
 end
 
 -- custom crash handler
@@ -108,6 +134,13 @@ love.draw = function()
   love.build.canvas:renderTo(function()
     love.graphics.clear(20/255, 20/255, 20/255, 1)
     love.graphics.setFont(love.build.font)
+    love.graphics.setColor(0.3, 0.3, 0.3, 1)
+    if folder_button.hl then
+      love.graphics.setColor(0.4, 0.4, 0.4, 1)
+    end
+    love.graphics.rectangle('fill', folder_button.x, folder_button.y, folder_button.w, folder_button.h)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.printf('Open Cache', folder_button.x, folder_button.y+3, folder_button.w, 'center')
     love.graphics.draw(love.build.logo, 160 - 32, 80 - 32 - 15)
     love.graphics.printf(love.build.status, 10, 105, 300, 'center')
   end)

@@ -20,7 +20,7 @@ love.exedit = {
 
   updateIcon = function(exe_file, image_file, debug_mode)
 
-    print('love.exedit > modiying exe file', exe_file)
+    print('love.exedit > modifying exe file', exe_file)
 
     -- read the data from the file and clone it for later
     local data, err = love.filesystem.read(exe_file)

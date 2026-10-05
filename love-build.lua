@@ -21,7 +21,9 @@ return {
   canvas = build_canvas,
   logo = build_logo,
   font = build_font,
+  started = false,
   status = '',
+  error = false,
   path = '',
   folder = '',
   os = 'windows',
@@ -50,6 +52,7 @@ return {
     -- start build
     love.build.log('starting build')
     love.build.status = 'Starting Build...'
+    love.build.started = true
     love.build.start = love.timer.getTime()
 
     -- get os shorthand
@@ -130,6 +133,8 @@ return {
     table.insert(love.build.opts.ignore, '.vscode')
     love.build.opts.version = opts.version or '1.0.0'
     love.build.opts.love = opts.love or '11.5'
+    love.build.opts.unzippedsrc = opts.unzippedsrc or false
+    love.build.opts.lovefile = opts.lovefile or ''
 
     -- set default indentifier for backup if not set
     local default_idendifier = 'com.' .. 
@@ -140,6 +145,8 @@ return {
     -- additional options
     love.build.opts.icon = opts.icon or nil
     if love.build.opts.icon == nil then love.build.opts.icon = '' end
+    love.build.opts.exedit = opts.exedit
+    if love.build.opts.exedit == nil then love.build.opts.exedit = true end
     love.build.opts.use32bit = opts.use32bit or false
     -- if platforms specified use that instead for targets
     if opts.platforms ~= nil and type(opts.platforms) == 'table' then
@@ -190,7 +197,7 @@ return {
       love.build.log('preprocess: ' .. love.build.path .. '/' .. love.build.hooks.before_build)
       local cmd = 'sh'
       if love.build.os == 'windows' then cmd = 'bash' end
-      os.execute(cmd .. ' ' .. love.build.path .. '/' .. love.build.hooks.before_build .. ' ' .. love.build.path)
+      os.execute(cmd .. ' ' .. love.build.path .. '/' .. love.build.hooks.before_build .. ' ' .. love.build.path .. ' ' .. love.build.opts.version)
     end
 
     love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
@@ -217,7 +224,29 @@ return {
       need_love = false
     end
 
-    if need_love then
+    if opts.lovefile ~= '' and need_love then
+      love.build.log('lovefile specified, reading path: project/' .. opts.lovefile)
+      local start_time = love.timer.getTime()
+
+      love.filesystem.createDirectory(output)
+  
+      -- check we made a lovefile
+      local love_data = love.build.readData('project/' .. opts.lovefile)
+      if love_data == nil then
+        return love.build.err('failed to read specified lovefile path')
+      end
+      love.build.log('read specified lovefile successfully')
+  
+      -- remove existing .lovefile if any + copy passed one
+      love.filesystem.remove(lovefile)
+      love.build.copyFile('project/' .. opts.lovefile, lovefile)
+
+      love.build.cache = output
+  
+      love.build.log('loaded "' .. lovefile .. '"')
+      love.build.log('step finished in ' .. love.build.formatTime(love.timer.getTime() - start_time))
+
+    elseif need_love then
       love.build.log('making lovefile')
       local start_time = love.timer.getTime()
   
@@ -256,7 +285,7 @@ return {
   
       -- remove existing .lovefile if any
       love.filesystem.remove(lovefile)
-      love.build.copyFile(love.build.cache .. '/' .. opts.name .. '.love', output .. '/' .. opts.name .. '.love')
+      love.build.copyFile(love.build.cache .. '/' .. opts.name .. '.love', lovefile)
     end
 
     -- what we make next depends on settings
@@ -321,13 +350,15 @@ return {
 
     -- extract source
     local unzip = love.zip:newZip()
-    local decompress, err = unzip:decompress('temp/' .. srcfile, 'temp/')
+    local outputsrc = 'temp/'
+    if love.build.opts.unzippedsrc then outputsrc = 'temp/love-' .. love.build.opts.love .. '-' .. wbit .. '/' end
+    local decompress, err = unzip:decompress('temp/' .. srcfile, outputsrc)
     if decompress == false then
       return love.build.err('failed to unzip src: "' .. err .. '"')
     end
 
     -- add game icon
-    if opts.icon ~= nil then
+    if opts.icon ~= nil and opts.exedit == true then
       love.build.log('setting game icon')
       local icon = love.icon:newIcon('project/' .. opts.icon)
       icon:convertToICO('temp/' .. srcdir .. '/game.ico')
@@ -921,7 +952,7 @@ return {
       love.build.log('postprocess: ' .. love.build.path .. '/' .. love.build.hooks.after_build)
       local cmd = 'sh'
       if love.build.os == 'windows' then cmd = 'bash' end
-      os.execute(cmd .. ' ' .. love.build.path .. '/' .. love.build.hooks.after_build .. ' ' .. love.build.path .. ' ' .. love.build.opts.output)
+      os.execute(cmd .. ' ' .. love.build.path .. '/' .. love.build.hooks.after_build .. ' ' .. love.build.path .. ' ' .. love.build.opts.output .. ' ' .. love.build.opts.version)
     end
 
     -- finalise build
@@ -1051,6 +1082,65 @@ return {
       srcfile = 'love-' .. love.build.opts.love .. '-' .. 'x86_64.AppImage'
     end
 
+    -- if specified unzippedsrc, look for the folder and sense check for the os
+    if love.build.opts.unzippedsrc then
+      local expectedfolder = ''
+      local expectedfiles = {}
+      if os == 'win32' then
+        expectedfolder = 'cache/love-' .. love.build.opts.love .. '-win32'
+        expectedfiles = {'love.exe','lovec.exe'}
+      end
+      if os == 'win64' then
+        expectedfolder = 'cache/love-' .. love.build.opts.love .. '-win64'
+        expectedfiles = {'love.exe','lovec.exe'}
+      end
+      if os == 'macos' then
+        expectedfolder = 'cache/love-' .. love.build.opts.love .. '-macos'
+        expectedfiles = {'love.app'}
+      end
+      if os == 'linux' then
+        expectedfolder = 'cache/love-' .. love.build.opts.love .. '-linux'
+        expectedfiles = {'love.AppImage'}
+      end
+      local has_folder = love.filesystem.exists(expectedfolder)
+      if not has_folder then
+        love.build.log('missing unzippedsrc folder called: ' .. expectedfolder)
+        love.build.status = 'Error: No cache folder named: "' .. expectedfolder .. '"'
+        return false
+      end
+      for f=1,#expectedfiles do
+        local fpath = expectedfolder .. '/' .. expectedfiles[f]
+        local has_file = love.filesystem.exists(fpath)
+        if not has_file then
+          love.build.log('unzippedsrc folder missing file: ' .. expectedfolder)
+          love.build.status = 'Error: Cache folder missing file: "' .. fpath .. '"'
+          return false
+        end
+      end
+      love.build.log('unzippedsrc has been provided, zipping')
+      local outputzip = ''
+      if os == 'win32' or os == 'win64' then
+        outputzip = 'love-' .. love.build.opts.love .. '-' .. os .. '.zip'
+      end
+      if os == 'macos' then
+        outputzip = 'love-' .. love.build.opts.love .. '-macos.zip'
+      end
+      if os == 'linux' then
+        outputzip = 'love-' .. love.build.opts.love .. '-x86_64.AppImage'
+      end
+      love.filesystem.remove('cache/' .. outputzip)
+      if os == 'linux' then
+        love.build.copyFile(expectedfolder .. '/love.AppImage', 'cache/' .. outputzip)
+      else
+        local zip = love.zip:newZip(false)
+        local compress, err = zip:compress(expectedfolder, 'cache/' .. outputzip)
+        if compress == false then
+          return love.build.err('failed to zip up unzipped src output: "' .. err .. '"')
+        end
+      end
+      return true
+    end
+
     -- check if we already have this in the cache, if we do return true
     local existing_data = love.build.readData('cache/' .. srcfile, true)
     if existing_data ~= nil then
@@ -1120,6 +1210,7 @@ return {
   err = function(err)
     love.build.log('love.build > error > ' .. err)
     love.build.status = 'Error: ' .. err -- show in gui
+    love.build.error = true
     table.insert(love.build.logs, err)
     love.build.dumpLogs()
     love.system.openURL('file://' .. love.filesystem.getSaveDirectory() .. '/output/' .. love.build.folder)

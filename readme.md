@@ -37,6 +37,10 @@ return {
     after_build = 'resources/postprocess.sh'
   },
   platforms = {'windows'} -- set if you only want to build for a specific platform
+
+  -- advanced settings:
+  lovefile = 'relative/path/to/lovefile/from/project' -- use an existing .love file during the build
+  unzippedsrc = false, -- set to true to use unzipped src folders in the cache
   
 }
 ```
@@ -150,14 +154,17 @@ You can view the logs inside `output/version/build.log` after running the builde
 
 > Note: If you want to build with 12.0 you'll need to provide the source zips yourself in the `%appdata%/love-build/cache` directory, you can download the builds from the [latest successful workflow action](https://github.com/love2d/love/actions) from source or use the ones provided in the `src` folder in this repo. I would recommend building with 11.5 first to see the expected files in your cache, and check the actual contents of the zips due to Github Workflow double-zipping artifacts. The builds provided in `src` in this repo have been tested on all platforms.
 
+If you are using the `unzippedsrc` option, you will need to create 3 folders inside your the `%appdata%/love-build/cache` directory, using the following naming convention where VERSION matches the love version in your `build.lua`:
+- Windows: `love-VERSION-win64` or `love.VERSION-win32`
+- Linux: `love-VERSION-linux`
+- MacOS: `love-VERSION-macos`  
+
+Inside each of these folders should be the source files needed, i.e. for Linux it should be an `love.AppImage`, MacOS should be a `love.app`, and Windows should contain ALL the source files, `love.exe`, all `.dlls`, `.ico` etc.
+
+Note that the version you use in the build.lua can be made up, allowing you to make seperate builds with different love sources (i.e. a specific stable nightly could be named `12.0b` and that could be specified in your config).
 
 ---
 
 
 ## Todo
-**.AppImages for Linux export**  
-Currently the `love-squashfs` lib handles decompressing squashfs binaries fine, however resquashing them has an issue I'm working on. At the moment the Linux export just uses the same AppImage directory format with a `AppRun` entrypoint and fused binary, which will work fine for most distros so no harm there (it also works a bit better for Steam distribution, just set your installation path as the `AppRun` file)
- 
-Once I fix up the `love-squashfs` compression issue lovebuild could add a proper `.AppImage` if needed, but I think we should still keep the `-linux.zip` output as an option for people who want it, similar to the additional 32bit option windows has.
-
 See [todo.md](todo.md) for stuff planned in future or ideas for contributions.

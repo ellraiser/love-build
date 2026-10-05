@@ -7,6 +7,8 @@
 [windows]
 - file version doesnt seem to update correctly all the time, need to update the FIXED_FILE_INFO as well I think
 
+[12.0]
+- once 12.0 is officially released, need to make a release on love-build and use that as the source for automatic downloading so that the appimage compression type fork is used
 
 ---
 
